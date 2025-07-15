@@ -2,6 +2,8 @@
 using Hospital_Management_System.Models;
 using Hospital_Management_System.Services;
 using System.Reflection;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace Hospital_Management_System
@@ -34,10 +36,17 @@ namespace Hospital_Management_System
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
             });
 
+            //builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<ApplicationDbContext>();
+
             // registering the injection of services
             builder.Services.AddScoped<IPatientServices, PatientServices>();
             builder.Services.AddScoped<IAppointmentServices, AppointmentServices>();
             builder.Services.AddScoped<IDoctorServices, DoctorServices>();
+            builder.Services.AddScoped<IStaffServices, StaffServices>();
+
+            builder.Services.AddIdentity<ApplicationUser, Role>()
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
 
             var app = builder.Build();
 
