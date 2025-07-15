@@ -45,7 +45,7 @@ namespace Hospital_Management_System.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddStaff([FromBody] StaffCreatingDto dto)
+        public async Task<IActionResult> AddStaff( StaffCreatingDto dto)
         {
             if (dto == null)
             {
