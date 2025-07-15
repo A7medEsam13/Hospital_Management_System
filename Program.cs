@@ -4,6 +4,7 @@ using Hospital_Management_System.Services;
 using System.Reflection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Hospital_Management_System.Repository;
 
 
 namespace Hospital_Management_System
@@ -43,6 +44,9 @@ namespace Hospital_Management_System
             builder.Services.AddScoped<IAppointmentServices, AppointmentServices>();
             builder.Services.AddScoped<IDoctorServices, DoctorServices>();
             builder.Services.AddScoped<IStaffServices, StaffServices>();
+            builder.Services.AddScoped<IRoleServices, RoleServices>();
+
+            builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 
             builder.Services.AddIdentity<ApplicationUser, Role>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
