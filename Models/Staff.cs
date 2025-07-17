@@ -17,7 +17,12 @@ namespace Hospital_Management_System.Models
         public int DepartmentId { get; set; }
         public bool IsTerminated { get; set; } = false;
 
+        [ForeignKey("User")]
+        public string UserId { get; set; }
+
         // Navigation properties
         public Department Department { get; set; }
+
+        public ApplicationUser User { get; set; }
     }
 }

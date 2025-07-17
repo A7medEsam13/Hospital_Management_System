@@ -41,6 +41,7 @@ namespace Hospital_Management_System.Controllers
 
                 if (result.Succeeded)
                 {
+                    await _userManager.AddToRoleAsync(user, dto.UserRole.ToString());
                     _logger.LogInformation("User {UserName} registered successfully", dto.UserName);
                     return Ok("Created");
                 }
@@ -101,6 +102,31 @@ namespace Hospital_Management_System.Controllers
             }
             return BadRequest(ModelState);
 
+        }
+
+        [HttpDelete("Delete")]
+        public async Task<IActionResult> Delete(string userName)
+        {
+            ApplicationUser user = await _userManager.FindByNameAsync(userName);
+            if (user != null)
+            {
+                IdentityResult result = await _userManager.DeleteAsync(user);
+                if (result.Succeeded)
+                {
+                    _logger.LogInformation("User {UserName} deleted successfully", userName);
+                    return Ok("Deleted");
+                }
+                foreach (var item in result.Errors)
+                {
+                    ModelState.AddModelError(item.Code, item.Description);
+                }
+            }
+            else
+            {
+                ModelState.AddModelError("UserName", "User not found");
+            }
+            _logger.LogError("Deletion failed for user {UserName} with errors: {Errors}", userName, ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+            return BadRequest(ModelState);
         }
     }
 }

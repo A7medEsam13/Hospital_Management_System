@@ -38,8 +38,6 @@ namespace Hospital_Management_System.Models
         public DbSet<Insurance> Insurances { get; set; }
         public DbSet<Room> Rooms { get; set; }
         public DbSet<LaboratoryScreening> LaboratoryScreenings { get; set; }
-        //public DbSet<Role> Roles { get; set; }
-        //public DbSet<UserRole> UserRoles { get; set; }
-        //public DbSet<ApplicationUser> Users { get; set; }
+        
     }
 }
