@@ -1,8 +1,6 @@
-﻿using Hospital_Management_System.Models;
-
-namespace Hospital_Management_System.Services
+﻿namespace Hospital_Management_System.Repository
 {
-    public interface IPatientServices
+    public interface IPatientRepository
     {
         public Task AddPatient(Patient patient);
         public Task RemovePatient(int patientId);
@@ -10,5 +8,6 @@ namespace Hospital_Management_System.Services
         public Task<Patient> GetPatientByName(string name);
         public Task<ICollection<Patient>> GetAllPatients();
         public void Updatepatient(Patient patient);
+        public Task SaveAsync();
     }
 }

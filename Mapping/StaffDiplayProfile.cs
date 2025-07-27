@@ -6,7 +6,7 @@ namespace Hospital_Management_System.Mapping
     {
         public StaffDiplayProfile()
         {
-            CreateMap<Staff, StaffDisplayDto>()     // mapping from staff to dto.
+            CreateMap<Stuff, StuffDisplayDto>()     // mapping from staff to dto.
                 .ReverseMap();
         }
     }

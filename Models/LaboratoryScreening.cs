@@ -18,7 +18,7 @@ namespace Hospital_Management_System.Models
 
         // Navigation properties
         public Patient Patient { get; set; }
-        public Staff Technician { get; set; } // Assuming Staff is a base class for all staff members
+        public Stuff Technician { get; set; } // Assuming Staff is a base class for all staff members
         public Doctor Doctor { get; set; } // Assuming Doctor is a subclass of Staff
         public Bill Bill { get; set; }
     }

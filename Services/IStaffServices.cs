@@ -2,11 +2,10 @@
 {
     public interface IStaffServices
     {
-        public Task Add(Staff staff);
-        public Task Remove(string ssn);
-        public Task<Staff> GetById(string ssn);
-        public void Update(Staff staff);
-        public Task<IEnumerable<Staff>> GetAll();
-        public Task SaveAsync();
+        public Task Create(StuffCreateDto stuff);
+        public Task Terminate(string ssn);
+        public Task<Stuff> GetById(string ssn);
+        public Task Update(StuffUpdateDto staff);
+        public Task<IEnumerable<StuffDisplayDto>> GetAll();
     }
 }

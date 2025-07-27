@@ -9,7 +9,7 @@
         public string Role { get; set; }
         public string Email { get; set; }
         public string Address { get; set; }
-        public int DepartmentId { get; set; }
+        public string DepartmentName { get; set; }
 
 
         public string Qualification { get; set; }

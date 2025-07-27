@@ -15,14 +15,17 @@ namespace Hospital_Management_System.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IConfiguration _config;
         private readonly ILogger<AccountsController> _logger;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
         public AccountsController(UserManager<ApplicationUser> userManager,
             IConfiguration config,
-            ILogger<AccountsController> logger)
+            ILogger<AccountsController> logger,
+            RoleManager<IdentityRole> roleManager)
         {
             _userManager = userManager;
             _config = config;
             _logger = logger;
+            _roleManager = roleManager;
         }
 
         [HttpPost("Register")]
@@ -41,7 +44,6 @@ namespace Hospital_Management_System.Controllers
 
                 if (result.Succeeded)
                 {
-                    await _userManager.AddToRoleAsync(user, dto.UserRole.ToString());
                     _logger.LogInformation("User {UserName} registered successfully", dto.UserName);
                     return Ok("Created");
                 }

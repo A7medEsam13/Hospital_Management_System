@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
@@ -18,17 +19,23 @@ namespace Hospital_Management_System.Controllers
         private readonly IDoctorServices _doctorServices;
         private readonly IMapper _mapper;
         private readonly IStaffServices _staffServices;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
         public DoctorsController(
             ILogger<DoctorsController> logger,
             IDoctorServices doctorServices,
             IMapper mapper,
-            IStaffServices staffServices)
+            IStaffServices staffServices,
+            UserManager<ApplicationUser> userManager,
+            RoleManager<IdentityRole> roleManager)
         {
             _logger = logger;
             _doctorServices = doctorServices;
             _mapper = mapper;
             _staffServices = staffServices;
+            _userManager = userManager;
+            _roleManager = roleManager;
         }
 
         [HttpPost]
@@ -39,10 +46,16 @@ namespace Hospital_Management_System.Controllers
                 _logger.LogError("Doctor data is null.");
                 return BadRequest("Invalid doctor data.");
             }
+
             // mapping and adding the staff.
-            var staff = _mapper.Map<Staff>(dto);
-            await _staffServices.Add(staff);
-            _logger.LogInformation("Staff added successfully with SSN {StaffSSN}.", staff.SSN);
+            var stuff = _mapper.Map<Stuff>(dto);
+           
+            var user = await _userManager.FindByIdAsync(stuff.UserId);
+
+            IdentityResult result = await _userManager.AddToRoleAsync(user, "Doctor");
+
+            await _staffServices.Add(stuff);
+            _logger.LogInformation("Staff added successfully with SSN {StaffSSN}.", stuff.SSN);
 
             // mapping and adding the dioctor
             var doctor = _mapper.Map<Doctor>(dto);

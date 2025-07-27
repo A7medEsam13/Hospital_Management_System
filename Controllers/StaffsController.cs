@@ -25,7 +25,7 @@ namespace Hospital_Management_System.Controllers
         public async Task<IActionResult> GetAllStaffs()
         {
             var staffs = await _staffServices.GetAll();
-            var staffDtos = _mapper.Map<IEnumerable<StaffDisplayDto>>(staffs);
+            var staffDtos = _mapper.Map<IEnumerable<StuffDisplayDto>>(staffs);
             _logger.LogInformation("Retrieved all staff members successfully.");
             return Ok(staffDtos);
         }
@@ -39,20 +39,20 @@ namespace Hospital_Management_System.Controllers
                 _logger.LogError($"Staff with SSN {id} not found.");
                 return NotFound($"Staff with SSN {id} not found.");
             }
-            var staffDto = _mapper.Map<StaffDisplayDto>(staff);
+            var staffDto = _mapper.Map<StuffDisplayDto>(staff);
             _logger.LogInformation($"Retrieved staff member with SSN {id} successfully.");
             return Ok(staffDto);
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddStaff( StaffCreatingDto dto)
+        public async Task<IActionResult> AddStaff( StuffCreateDto dto)
         {
             if (dto == null)
             {
                 _logger.LogError("Received null staff object.");
                 return BadRequest("Staff object cannot be null.");
             }
-            var staff = _mapper.Map<Staff>(dto);
+            var staff = _mapper.Map<Stuff>(dto);
             await _staffServices.Add(staff);
             await _staffServices.SaveAsync();
             _logger.LogInformation($"Added new staff member with SSN {staff.SSN} successfully.");
@@ -60,7 +60,7 @@ namespace Hospital_Management_System.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> UpdateStaff([FromBody] StaffCreatingDto dto)
+        public async Task<IActionResult> UpdateStaff([FromBody] StuffCreateDto dto)
         {
             if (dto == null)
             {
@@ -73,7 +73,7 @@ namespace Hospital_Management_System.Controllers
                 _logger.LogError($"Staff with SSN {dto.SSN} not found for update.");
                 return NotFound($"Staff with SSN {dto.SSN} not found.");
             }
-            var staff = _mapper.Map<Staff>(dto);
+            var staff = _mapper.Map<Stuff>(dto);
             _staffServices.Update(staff);
             await _staffServices.SaveAsync();
             _logger.LogInformation($"Updated staff member with SSN {dto.SSN} successfully.");

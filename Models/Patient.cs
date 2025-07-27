@@ -13,12 +13,5 @@
         public string Condition { get; set; }
         public DateOnly AdmissionDate { get; set; }
         public DateOnly DisChargeDate { get; set; }
-
-        [ForeignKey("User")]
-        public string UserId { get; set; }
-
-
-        // Navigation property to the User table
-        public ApplicationUser User { get; set; }
     }
 }

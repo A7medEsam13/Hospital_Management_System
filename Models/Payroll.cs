@@ -9,6 +9,6 @@
         public string IBAN { get; set; }
 
         // Navigation properties
-        public Staff Staff { get; set; }    
+        public Stuff Staff { get; set; }    
     }
 }

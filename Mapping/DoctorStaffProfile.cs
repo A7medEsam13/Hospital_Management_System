@@ -13,15 +13,13 @@ namespace Hospital_Management_System.Mapping
                 .ReverseMap();
 
             // mapping from dto to staff.
-            CreateMap<DoctorCreateDto, Staff>()  // <source, destination>
+            CreateMap<DoctorCreateDto, Stuff>()  // <source, destination>
             .ForMember(dest=>dest.FirstName, opt => opt.MapFrom(src => src.FirstName))
                 .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.LastName))
                 .ForMember(dest => dest.JoinDate, opt => opt.MapFrom(src => src.JoinDate))
-                .ForMember(dest => dest.SeparationDate, opt => opt.MapFrom(src => src.SeparationDate))
-                .ForMember(dest => dest.Role, opt => opt.MapFrom(src => src.Role))
                 .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
                 .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address))
-                .ForMember(dest => dest.DepartmentId, opt => opt.MapFrom(src => src.DepartmentId))
+                .ForMember(dest => dest.DepartmentName, opt => opt.MapFrom(src => src.DepartmentName))
                 .ForMember(dest => dest.SSN, opt => opt.MapFrom(src => src.SSN))
                 .ReverseMap();
         }

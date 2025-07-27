@@ -1,10 +1,14 @@
 
 using Hospital_Management_System.Models;
+using Hospital_Management_System.Repository;
 using Hospital_Management_System.Services;
-using System.Reflection;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Hospital_Management_System.Repository;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using System.Reflection;
+using System.Text;
 
 
 namespace Hospital_Management_System
@@ -23,7 +27,37 @@ namespace Hospital_Management_System
 
             // registering swagger services
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            builder.Services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Your API", Version = "v1" });
+
+                // ? Add JWT Bearer authentication to Swagger
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Description = "Enter 'Bearer' followed by your token in the text box below.\r\n\r\nExample: \"Bearer abc123\"",
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer"
+                });
+
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            },
+                            Name = "Bearer",
+                            In = ParameterLocation.Header,
+                        },
+                        new List<string>()
+                    }
+                });
+            });
 
 
 
@@ -37,20 +71,44 @@ namespace Hospital_Management_System
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
             });
 
-            //builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<ApplicationDbContext>();
 
-            // registering the injection of services
+            ///summary : 
+            //// registering the injection of services
+            #region injection of services
+
             builder.Services.AddScoped<IPatientServices, PatientServices>();
+            builder.Services.AddScoped<IPatientRepository, PatientRepository>();
             builder.Services.AddScoped<IAppointmentServices, AppointmentServices>();
             builder.Services.AddScoped<IDoctorServices, DoctorServices>();
             builder.Services.AddScoped<IStaffServices, StaffServices>();
-            builder.Services.AddScoped<IRoleServices, RoleServices>();
+            builder.Services.AddScoped<IStuffRepository, StuffRepository>();
+            #endregion
 
-            builder.Services.AddScoped<IRoleRepository, RoleRepository>();
-
-            builder.Services.AddIdentity<ApplicationUser, Role>()
+            builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
+
+            builder.Services.AddAuthentication(options =>
+            {
+                // check jwt token header 
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+
+                //[authorize]
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme; // unauthorize
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options => // verified key
+            {
+                options.SaveToken = true;
+                options.RequireHttpsMetadata = false;
+                options.TokenValidationParameters = new TokenValidationParameters()
+                {
+                    ValidateIssuer = true,
+                    ValidIssuer = builder.Configuration["JWT:Issuer"],
+                    ValidateAudience = true,
+                    ValidAudience = builder.Configuration["JWT:aud"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:securityKey"]))
+                };
+            });
 
             var app = builder.Build();
 

@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace Hospital_Management_System.Models
 {
-    public class ApplicationDbContext : IdentityDbContext<ApplicationUser,Role, string>
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -23,9 +23,8 @@ namespace Hospital_Management_System.Models
         }
 
         public DbSet<Diagnosis> Diagnoses { get; set; }
-        public DbSet<Staff> Staffs { get; set; }
+        public DbSet<Stuff> Staffs { get; set; }
         public DbSet<Nurse> Nurses { get; set; }
-        public DbSet<Department> Departments { get; set; }
         public DbSet<Payroll> Payrolls { get; set; }
         public DbSet<Patient> Patients { get; set; }
         public DbSet<Appointment> Appointments { get; set; }

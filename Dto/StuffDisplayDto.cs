@@ -1,6 +1,6 @@
 ﻿namespace Hospital_Management_System.Dto
 {
-    public class StaffCreatingDto
+    public class StuffDisplayDto
     {
         public string SSN { get; set; }
         public string FirstName { get; set; }
@@ -9,6 +9,6 @@
         public string Role { get; set; }
         public string Email { get; set; }
         public string Address { get; set; }
-        public int DepartmentId { get; set; }
+        public string DepartmentName { get; set; }
     }
 }

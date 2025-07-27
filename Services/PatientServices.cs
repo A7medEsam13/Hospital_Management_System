@@ -1,54 +1,56 @@
 ﻿using Hospital_Management_System.Models;
+using Hospital_Management_System.Repository;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace Hospital_Management_System.Services
 {
     public class PatientServices : IPatientServices
     {
-        private readonly ApplicationDbContext _context;
-        public PatientServices(ApplicationDbContext context)
+        private readonly IPatientRepository _patientRepository;
+
+        public PatientServices(IPatientRepository patientRepository)
         {
-            _context = context;
+            _patientRepository = patientRepository;
         }
+
         public async Task AddPatient(Patient patient)
         {
-            await _context.Patients.AddAsync(patient);
+            await _patientRepository.AddPatient(patient);
+            await _patientRepository.SaveAsync();
         }
 
         public async Task<ICollection<Patient>> GetAllPatients()
         {
-            var patients = await _context.Patients.ToListAsync();
-            return patients;
+            return await _patientRepository.GetAllPatients();
         }
 
-        public Patient GetPatientById(int patientId)
+        public async Task<Patient> GetPatientById(int patientId)
         {
-            var patient = _context.Patients.FirstOrDefault(p=>p.Id == patientId);
+            var patient = await _patientRepository.GetPatientById(patientId);
+            if (patient == null)
+            {
+                throw new KeyNotFoundException($"Patient with ID {patientId} not found.");
+            }
             return patient;
         }
 
-        public Task<Patient> GetPatientByName(string name)
+        public async Task<Patient> GetPatientByName(string name)
         {
-            name = name.ToLower();
-            return _context.Patients
-                .FirstOrDefaultAsync(p => 
-                (p.FirstName + " " + p.LastName).ToLower() == name);
+            return await _patientRepository.GetPatientByName(name);
         }
 
         public async Task RemovePatient(int patientId)
         {
-            var patient = await _context.Patients.FirstOrDefaultAsync(p => p.Id == patientId);
-            _context.Patients.Remove(patient);
-        }
+            await _patientRepository.RemovePatient(patientId);
+            await _patientRepository.SaveAsync();
 
-        public async Task SaveAsync()
-        {
-            await _context.SaveChangesAsync();
         }
 
         public void Updatepatient(Patient patient)
         {
-            _context.Patients.Update(patient);
+            _patientRepository.Updatepatient(patient);
+            _patientRepository.SaveAsync().Wait(); // Ensure the save operation completes
         }
     }
 }

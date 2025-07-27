@@ -30,7 +30,7 @@ namespace Hospital_Management_System.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddPatient([FromBody] PatientDto patientDto)
+        public async Task<IActionResult> AddPatient([FromBody] PatientCreationDto patientDto)
         {
             if (patientDto == null)
             {
@@ -75,7 +75,7 @@ namespace Hospital_Management_System.Controllers
                 return NotFound($"Patient with ID {id} not found.");
             }
             // log the success
-            var patientDto = _mapper.Map<PatientDto>(patient);
+            var patientDto = _mapper.Map<PatientCreationDto>(patient);
             _logger.LogInformation($"Patient with ID {id} retrieved successfully.");
             return Ok(patientDto);
         }
@@ -92,7 +92,7 @@ namespace Hospital_Management_System.Controllers
             }
             // log the success
             _logger.LogInformation($"Patient with name {name} retrieved successfully.");
-            var patientDto = _mapper.Map<PatientDto>(patient);
+            var patientDto = _mapper.Map<PatientCreationDto>(patient);
             return Ok(patientDto);
         }
 
@@ -108,12 +108,12 @@ namespace Hospital_Management_System.Controllers
             }
             // log the success
             _logger.LogInformation("All patients retrieved successfully.");
-            var patientDtos = _mapper.Map<IEnumerable<PatientDto>>(patients);
+            var patientDtos = _mapper.Map<IEnumerable<PatientCreationDto>>(patients);
             return Ok(patientDtos);
         }
 
         [HttpPut]
-        public async Task<IActionResult> UpdatePatient([FromBody] PatientDto patientDto)
+        public async Task<IActionResult> UpdatePatient([FromBody] PatientCreationDto patientDto)
         {
             if (patientDto == null)
             {

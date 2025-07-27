@@ -6,7 +6,7 @@ namespace Hospital_Management_System.Mapping
     {
         public StaffCreatingProfile()
         {
-            CreateMap<Staff, StaffCreatingDto>()
+            CreateMap<Stuff, StuffCreateDto>()
                 .ReverseMap();
         }
     }

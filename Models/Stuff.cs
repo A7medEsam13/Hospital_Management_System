@@ -2,7 +2,7 @@
 
 namespace Hospital_Management_System.Models
 {
-    public class Staff
+    public class Stuff
     {
         [Key]
         public string SSN { get; set; }
@@ -13,15 +13,11 @@ namespace Hospital_Management_System.Models
         public string Role { get; set; }
         public string Email { get; set; }
         public string Address { get; set; }
-        [ForeignKey("Department")]
-        public int DepartmentId { get; set; }
+        public string DepartmentName { get; set; }
         public bool IsTerminated { get; set; } = false;
 
         [ForeignKey("User")]
         public string UserId { get; set; }
-
-        // Navigation properties
-        public Department Department { get; set; }
 
         public ApplicationUser User { get; set; }
     }

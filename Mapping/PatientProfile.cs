@@ -6,7 +6,7 @@ namespace Hospital_Management_System.Mapping
     {
         public PatientProfile() 
         {
-            CreateMap<Models.Patient, Dto.PatientDto>()
+            CreateMap<Models.Patient, Dto.PatientCreationDto>()
                 .ReverseMap();
         }
     }
