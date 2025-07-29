@@ -52,15 +52,13 @@ namespace Hospital_Management_System.Controllers
                 _logger.LogError("Received null staff object.");
                 return BadRequest("Staff object cannot be null.");
             }
-            var staff = _mapper.Map<Stuff>(dto);
-            await _staffServices.Add(staff);
-            await _staffServices.SaveAsync();
-            _logger.LogInformation($"Added new staff member with SSN {staff.SSN} successfully.");
+            await _staffServices.Create(dto);
+            _logger.LogInformation($"Added new staff member with SSN {dto.SSN} successfully.");
             return Created();
         }
 
         [HttpPut]
-        public async Task<IActionResult> UpdateStaff([FromBody] StuffCreateDto dto)
+        public async Task<IActionResult> UpdateStaff([FromBody] StuffUpdateDto dto)
         {
             if (dto == null)
             {
@@ -73,9 +71,7 @@ namespace Hospital_Management_System.Controllers
                 _logger.LogError($"Staff with SSN {dto.SSN} not found for update.");
                 return NotFound($"Staff with SSN {dto.SSN} not found.");
             }
-            var staff = _mapper.Map<Stuff>(dto);
-            _staffServices.Update(staff);
-            await _staffServices.SaveAsync();
+            await _staffServices.Update(dto);
             _logger.LogInformation($"Updated staff member with SSN {dto.SSN} successfully.");
             return Ok();
         }
@@ -89,8 +85,7 @@ namespace Hospital_Management_System.Controllers
                 _logger.LogError($"Staff with SSN {id} not found for deletion.");
                 return NotFound($"Staff with SSN {id} not found.");
             }
-            await _staffServices.Remove(id);
-            await _staffServices.SaveAsync();
+            await _staffServices.Terminate(id);
             _logger.LogInformation($"Deleted staff member with SSN {id} successfully.");
             return Ok();
         }

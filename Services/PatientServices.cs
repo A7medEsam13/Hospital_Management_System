@@ -8,17 +8,23 @@ namespace Hospital_Management_System.Services
     public class PatientServices : IPatientServices
     {
         private readonly IPatientRepository _patientRepository;
+        private readonly IMapper _mapper;
 
-        public PatientServices(IPatientRepository patientRepository)
+        public PatientServices(IPatientRepository patientRepository,
+            IMapper mapper)
         {
             _patientRepository = patientRepository;
+            _mapper = mapper;
         }
 
-        public async Task AddPatient(Patient patient)
+        public async Task AddPatient(PatientCreationDto patientDto)
         {
+            var patient = _mapper.Map<Patient>(patientDto);
             await _patientRepository.AddPatient(patient);
             await _patientRepository.SaveAsync();
         }
+
+        
 
         public async Task<ICollection<Patient>> GetAllPatients()
         {
@@ -35,9 +41,10 @@ namespace Hospital_Management_System.Services
             return patient;
         }
 
-        public async Task<Patient> GetPatientByName(string name)
+        public  IEnumerable<Patient> GetPatientByName(string name)
         {
-            return await _patientRepository.GetPatientByName(name);
+            name =name.ToLower();
+            return  _patientRepository.GetPatientsByName(name);
         }
 
         public async Task RemovePatient(int patientId)
@@ -47,10 +54,25 @@ namespace Hospital_Management_System.Services
 
         }
 
-        public void Updatepatient(Patient patient)
+        public async Task Updatepatient(Patient patient)
         {
             _patientRepository.Updatepatient(patient);
-            _patientRepository.SaveAsync().Wait(); // Ensure the save operation completes
+            await _patientRepository.SaveAsync(); // Ensure the save operation completes
+        }
+
+        public Task Updatepatient(PatientUpdateDto patient)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<IEnumerable<Patient>> IPatientServices.GetAllPatients()
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<Patient> IPatientServices.GetPatientByName(string name)
+        {
+            throw new NotImplementedException();
         }
     }
 }

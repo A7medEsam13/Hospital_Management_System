@@ -6,5 +6,9 @@
         public string Name { get; set; }
         public int Quantity { get; set; }
         public decimal Cost { get; set; }
+
+        // Navigation property
+        public ICollection<Bill> Bills { get; set; }
+        public ICollection<Prescription> Prescriptions { get; set; }
     }
 }

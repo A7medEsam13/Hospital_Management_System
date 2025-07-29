@@ -10,7 +10,7 @@ namespace Hospital_Management_System.Models
         [ForeignKey("Technician")]
         public string TechnicianSSN { get; set; } // Foreign key to Staff (Technician)
         [ForeignKey("Doctor")]
-        public int DoctorId { get; set; } // Foreign key to Doctor
+        public string DoctorId { get; set; } // Foreign key to Doctor
         [ForeignKey("Bill")]
         public int BillId { get; set; }
         public decimal TestCost { get; set; }

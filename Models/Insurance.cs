@@ -20,5 +20,6 @@ namespace Hospital_Management_System.Models
 
         // Navigation property
         public Patient Patient { get; set; }
+        public ICollection<Bill> Bills { get; set; }
     }
 }

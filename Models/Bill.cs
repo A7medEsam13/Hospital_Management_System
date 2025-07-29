@@ -10,14 +10,15 @@
         public decimal MedicineCost { get; set; }
         public decimal Total { get; set; }
         public int PatientId { get; set; } // Foreign key to Patient
+        public int? RoomId { get; set; }
         public decimal RemainingBalance { get; set; }
         public int PolicyNumber { get; set; }
 
         // Navigation properties
         public Patient Patient { get; set; } // Navigation property to Patient
-        public Insurance Insurance { get; set; } // Navigation property to InsurancePolicy
-        public Room Room { get; set; }
-        public ICollection<LaboratoryScreening> LaboratoryScreenings { get; set; }
-        public ICollection<Medicine> Medicine { get; set; }
+        public Insurance? Insurance { get; set; } // Navigation property to InsurancePolicy
+        public Room? Room { get; set; }
+        public ICollection<LaboratoryScreening>? LaboratoryScreenings { get; set; }
+        public ICollection<Medicine>? Medicine { get; set; }
     }
 }

@@ -49,19 +49,20 @@ namespace Hospital_Management_System.Controllers
 
             // mapping and adding the staff.
             var stuff = _mapper.Map<Stuff>(dto);
-           
+            var stuffDto = _mapper.Map<StuffCreateDto>(stuff);
+
             var user = await _userManager.FindByIdAsync(stuff.UserId);
 
             IdentityResult result = await _userManager.AddToRoleAsync(user, "Doctor");
 
-            await _staffServices.Add(stuff);
+            await _staffServices.Create(stuffDto);
             _logger.LogInformation("Staff added successfully with SSN {StaffSSN}.", stuff.SSN);
 
             // mapping and adding the dioctor
             var doctor = _mapper.Map<Doctor>(dto);
             await _doctorServices.Add(doctor);
             await _doctorServices.SaveAsync();
-            _logger.LogInformation("Doctor added successfully with ID {DoctorId}.", doctor.Id);
+            _logger.LogInformation("Doctor added successfully with ID {DoctorId}.", doctor.SSN);
             return Ok("Doctor added successfully.");
         }
 
@@ -79,7 +80,7 @@ namespace Hospital_Management_System.Controllers
         }
 
         [HttpGet("{id:int}")]
-        public  IActionResult GetDoctorById(int id)
+        public  IActionResult GetDoctorById(string id)
         {
             var doctor = _doctorServices.GetById(id);
             if (doctor == null)
@@ -92,7 +93,7 @@ namespace Hospital_Management_System.Controllers
         }
 
         [HttpPut("{id:int}")]
-        public IActionResult UpdateDoctor(int id, DoctorUpdateDto dto)
+        public IActionResult UpdateDoctor(string id, DoctorUpdateDto dto)
         {
             if (dto == null)
             {
@@ -113,7 +114,7 @@ namespace Hospital_Management_System.Controllers
         }
 
         [HttpDelete]
-        public async Task<IActionResult> DeleteDoctor(int id)
+        public async Task<IActionResult> DeleteDoctor(string id)
         {
             var doctor = _doctorServices.GetById(id);
             if (doctor == null)
@@ -121,7 +122,7 @@ namespace Hospital_Management_System.Controllers
                 _logger.LogError("Doctor with ID {DoctorId} not found.", id);
                 return NotFound($"Doctor with ID {id} not found.");
             }
-            await _staffServices.Remove(doctor.Staff.SSN);
+            await _staffServices.Terminate(doctor.SSN);
             await _doctorServices.SaveAsync();
             _logger.LogInformation("Doctor with ID {DoctorId} has been terminated successfully.", id);
             return Ok("Doctor deleted successfully.");

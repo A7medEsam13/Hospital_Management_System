@@ -46,7 +46,7 @@ namespace Hospital_Management_System.Controllers
                 return BadRequest("Invalid appointment data.");
             }
             var appointment = _mapper.Map<Appointment>(appointmentDto);
-            appointment.Patient = _patientServices.GetPatientById(appointment.PatientId);
+            //appointment.Patient = _patientServices.GetPatientById(appointment.PatientId);
             appointment.Doctor = _doctorServices.GetById(appointment.DoctorId);
             // Here you would typically save the appointment to a database
             await _appointmentServices.AddAppointment(appointment);
@@ -123,8 +123,8 @@ namespace Hospital_Management_System.Controllers
         }
 
         // get appointments by doctor id
-        [HttpGet("{doctorId:int}")]
-        public async Task<IActionResult> GetAppointmentsByDoctorId(int doctorId)
+        [HttpGet("{doctorId:alpha}")]
+        public async Task<IActionResult> GetAppointmentsByDoctorId(string doctorId)
         {
             // Logic to get appointments by doctor id
             var appointments = await _appointmentServices.GetAppointmentsByDoctorId(doctorId);

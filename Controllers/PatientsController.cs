@@ -38,12 +38,10 @@ namespace Hospital_Management_System.Controllers
                 _logger.LogError("Patient data is null.");
                 return BadRequest("Patient data is null.");
             }
-            var patient = _mapper.Map<Patient>(patientDto);
-            await _patientServices.AddPatient(patient);
-            await _patientServices.SaveAsync();
+            await _patientServices.AddPatient(patientDto);
             // log the success
             _logger.LogInformation("Patient added successfully.");
-            return Ok(patient);
+            return Created();
         }
 
         [HttpDelete("{id:int}")]
@@ -57,7 +55,6 @@ namespace Hospital_Management_System.Controllers
                 return NotFound($"Patient with ID {id} not found.");
             }
             await _patientServices.RemovePatient(id);
-            await _patientServices.SaveAsync();
             // log the success
             _logger.LogInformation($"Patient with ID {id} removed successfully.");
             return Ok($"Patient with ID {id} removed successfully.");
@@ -113,7 +110,7 @@ namespace Hospital_Management_System.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> UpdatePatient([FromBody] PatientCreationDto patientDto)
+        public async Task<IActionResult> UpdatePatient([FromBody] PatientUpdateDto patientDto)
         {
             if (patientDto == null)
             {
@@ -121,12 +118,10 @@ namespace Hospital_Management_System.Controllers
                 _logger.LogError("Patient data is null.");
                 return BadRequest("Patient data is null.");
             }
-            var patient = _mapper.Map<Patient>(patientDto);
-            _patientServices.Updatepatient(patient);
-            await _patientServices.SaveAsync();
+            _patientServices.Updatepatient(patientDto);
             // log the success
-            _logger.LogInformation($"Patient with ID {patient.Id} updated successfully.");
-            return Ok(patient);
+            _logger.LogInformation($"Patient with ID {patientDto.Id} updated successfully.");
+            return Ok();
         }
     }
 }

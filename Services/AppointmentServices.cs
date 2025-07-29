@@ -49,7 +49,7 @@ namespace Hospital_Management_System.Services
             return appointments;
         }
 
-        public async Task<List<Appointment>> GetAppointmentsByDoctorId(int doctorId)
+        public async Task<List<Appointment>> GetAppointmentsByDoctorId(string doctorId)
         {
             var appointments = await _context.Appointments
                 .Where(a => a.DoctorId == doctorId)

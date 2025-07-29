@@ -10,7 +10,7 @@ namespace Hospital_Management_System.Services
         public void UpdateAppointment(int id, Appointment appointment); //
         public Task DeleteAppointment(int id); //
         public Task<IEnumerable<Appointment>> GetAppointmentsByPatientId(int patientId); //
-        public Task<List<Appointment>> GetAppointmentsByDoctorId(int doctorId); //
+        public Task<List<Appointment>> GetAppointmentsByDoctorId(string doctorId); //
         public Task<List<Appointment>> GetAppointmentsByDate(DateOnly date); //
         public Task SaveChangesAsync();
     }

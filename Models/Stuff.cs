@@ -15,10 +15,14 @@ namespace Hospital_Management_System.Models
         public string Address { get; set; }
         public string DepartmentName { get; set; }
         public bool IsTerminated { get; set; } = false;
+        [ForeignKey("Payroll")]
+        public int PayrollId { get; set; }
 
         [ForeignKey("User")]
         public string UserId { get; set; }
 
         public ApplicationUser User { get; set; }
+        public Payroll Payroll { get; set; }
+        public ICollection<LaboratoryScreening> LaboratoryScreenings { get; set; }
     }
 }

@@ -29,12 +29,10 @@ namespace Hospital_Management_System.Repository
             return patient;
         }
 
-        public Task<Patient> GetPatientByName(string name)
+        public IEnumerable<Patient> GetPatientsByName(string name)
         {
-            name = name.ToLower();
             return _context.Patients
-                .FirstOrDefaultAsync(p =>
-                (p.FirstName + " " + p.LastName).ToLower() == name);
+                .Where(p => (p.FirstName + " " + p.LastName).ToLower() == name);
         }
 
         public async Task RemovePatient(int patientId)

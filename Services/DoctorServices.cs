@@ -21,9 +21,9 @@ namespace Hospital_Management_System.Services
             return doctors;
         }
 
-        public Doctor GetById(int id)
+        public Doctor GetById(string id)
         {
-            var doctor = _context.Doctors.FirstOrDefault(x => x.Id == id);
+            var doctor = _context.Doctors.FirstOrDefault(x => x.SSN == id);
             if (doctor != null)
             {
                 return doctor;
@@ -38,7 +38,7 @@ namespace Hospital_Management_System.Services
 
         public void Update(Doctor doctor)
         {
-            var existingDoctor = _context.Doctors.FirstOrDefault(x => x.Id == doctor.Id);
+            var existingDoctor = _context.Doctors.FirstOrDefault(x => x.SSN == doctor.SSN);
             if (existingDoctor != null)
             {
                 _context.Doctors.Update(existingDoctor);

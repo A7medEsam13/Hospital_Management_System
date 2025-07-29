@@ -9,7 +9,7 @@
         [ForeignKey("Patient")]
         public int PatientId { get; set; } // Foreign key to Patient
         [ForeignKey("Doctor")]
-        public int DoctorId { get; set; } // Foreign key to Doctor
+        public string DoctorId { get; set; } // Foreign key to Doctor
 
         // Navigation properties
         public Patient Patient { get; set; }
