@@ -6,9 +6,9 @@
         public DateTime ScheduledOn { get; set; }
         public DateOnly Date { get; set; }
         public TimeOnly Time { get; set; }
-        [ForeignKey("Patient")]
         public int PatientId { get; set; } // Foreign key to Patient
-        [ForeignKey("Doctor")]
-        public int DoctorId { get; set; }
+        public string DoctorId { get; set; }
+        public string PatientName { get; set; }
+        public string DoctorName { get; set; }
     }
 }

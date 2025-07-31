@@ -36,8 +36,13 @@ namespace Hospital_Management_System.Controllers
 
         // Booking a new appointment
         [HttpPost]
-        public async Task<IActionResult> BookAppointment(AppointmentDto appointmentDto)
+        public async Task<IActionResult> BookAppointment(AppointmentCreationDto appointmentDto)
         {
+            if(!ModelState.IsValid)
+            {
+                _logger.LogError("Model state is invalid for booking an appointment.");
+                return BadRequest(ModelState);
+            }
             // Logic to book an appointment
             if (appointmentDto == null)
             {
@@ -45,14 +50,14 @@ namespace Hospital_Management_System.Controllers
                 _logger.LogError("Appointment data is null.");
                 return BadRequest("Invalid appointment data.");
             }
-            var appointment = _mapper.Map<Appointment>(appointmentDto);
-            //appointment.Patient = _patientServices.GetPatientById(appointment.PatientId);
-            appointment.Doctor = _doctorServices.GetById(appointment.DoctorId);
+            
+            
             // Here you would typically save the appointment to a database
-            await _appointmentServices.AddAppointment(appointment);
-            await _appointmentServices.SaveChangesAsync();
+            await _appointmentServices.AddAppointment(appointmentDto);
+            
             // Log the successful booking
-            _logger.LogInformation("Appointment booked successfully for patient ID {PatientId} with doctor ID {DoctorId}.", appointment.PatientId, appointment.DoctorId);
+            _logger.LogInformation("Appointment booked successfully for patient ID {PatientId} with doctor ID {DoctorId}.", appointmentDto.PatientId, appointmentDto.DoctorId);
+            
             // For now, we will just return a success message
             return Ok("Appointment booked successfully.");
         }
@@ -64,14 +69,13 @@ namespace Hospital_Management_System.Controllers
         {
             // Logic to get all appointments
             var appointments = await _appointmentServices.GetAllAppointments();
-            if (appointments == null || appointments.Count == 0)
+            if (appointments == null || !appointments.Any())
             {
                 // Log the case where no appointments are found
                 _logger.LogError("No appointments found.");
                 return NotFound("No appointments found.");
             }
-            var appointmentDisplayDtos = _mapper.Map<IEnumerable<AppointmentDisplayDto>>(appointments);
-            return Ok(appointmentDisplayDtos);
+            return Ok(appointments);
         }
 
         // getting appointment by id
@@ -91,19 +95,18 @@ namespace Hospital_Management_System.Controllers
         }
 
         // get appointments by date
-        [HttpGet("{date:datetime}")]
-        public async Task<IActionResult> GetAppointmentsByDate(DateOnly date)
+        [HttpGet]
+        public async Task<IActionResult> GetAppointmentsByDate([FromBody] DateOnly date)
         {
             // Logic to get appointments by date
             var appointments = await _appointmentServices.GetAppointmentsByDate(date);
-            if (appointments == null || appointments.Count == 0)
+            if (appointments == null || !appointments.Any())
             {
                 // Log the case where no appointments are found for the given date
                 _logger.LogError("No appointments found for the date {Date}.", date);
                 return NotFound($"No appointments found for the date {date}.");
             }
-            var appointmentDtos = _mapper.Map<IEnumerable<AppointmentDisplayDto>>(appointments);
-            return Ok(appointmentDtos);
+            return Ok(appointments);
         }
 
         // get appointments by patient id
@@ -140,7 +143,7 @@ namespace Hospital_Management_System.Controllers
 
         // updating an appointment
         [HttpPut("{id:int}")]
-        public async Task<IActionResult> UpdateAppointment(int id, AppointmentDto appointmentDto)
+        public async Task<IActionResult> UpdateAppointment(int id, AppointmentCreationDto appointmentDto)
         {
             // Logic to update an appointment
             if (appointmentDto == null || id <= 0)
