@@ -2,10 +2,9 @@
 {
     public interface IDoctorServices
     {
-        public Task Add(Doctor doctor); // done
-        public Doctor GetById(string id);  // done
-        public void Update(Doctor doctor); // done
-        public Task<IEnumerable<Doctor>> GetAll(); // done
-        public Task SaveAsync();
+        public Task Add(DoctorCreateDto doctor); // done
+        public Task<Doctor> GetById(string id);  // done
+        public Task Update(DoctorUpdateDto doctor); // done
+        public Task<IEnumerable<DoctorDisplayDto>> GetAll(); 
     }
 }

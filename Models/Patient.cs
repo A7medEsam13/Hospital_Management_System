@@ -14,14 +14,14 @@
         public DateOnly AdmissionDate { get; set; }
         public DateOnly DisChargeDate { get; set; }
         [ForeignKey("Room")]
-        public int RoomId { get; set; } 
+        public int? RoomId { get; set; } 
 
         // Navigation property for MedicalHistory
         public ICollection<MedicalHistory> MedicalHistory { get; set; }
         public ICollection<Prescription> Prescriptions { get; set; }
         public ICollection<Insurance> insurances { get; set; }
         public ICollection<Bill> Bills { get; set; }    
-        public ICollection<Diagnosis> Diagnoses { get; set; }   
+        public ICollection<DiagnosisPatient> DiagnosisPatient { get; set; }   
         public ICollection<Doctor> Doctors { get; set; }
         public ICollection<EmergencyContact> EmergencyContacts { get; set; }
         public Room Room {get; set; } 

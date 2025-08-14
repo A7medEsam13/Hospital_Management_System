@@ -48,8 +48,9 @@ namespace Hospital_Management_System.Models
 
             // the relation between patient and diagnoses.
             modelBuilder.Entity<Patient>()
-                .HasMany(p => p.Diagnoses)
-                .WithMany(d => d.Patients);
+                .HasMany(p => p.DiagnosisPatient)
+                .WithOne(d => d.Patient)
+                .HasForeignKey(pd => pd.PatientId);
 
             // the relation between patient and doctors.
             modelBuilder.Entity<Patient>()
@@ -65,7 +66,7 @@ namespace Hospital_Management_System.Models
             // the relation between patient and room.
             modelBuilder.Entity<Patient>()
                 .HasOne(p => p.Room)
-                .WithOne(r => r.Patient);
+                .WithMany(r => r.Patients);
             #endregion
 
             #region Doctor Relations
@@ -90,6 +91,11 @@ namespace Hospital_Management_System.Models
                 .WithOne(l => l.Doctor)
                 .HasForeignKey(l => l.DoctorId);
 
+            modelBuilder.Entity<Doctor>()
+                .HasMany(d => d.Diagnoses)
+                .WithOne(di => di.Doctor)
+                .HasForeignKey(di => di.DoctorSSN);
+
 
             #endregion
 
@@ -102,8 +108,9 @@ namespace Hospital_Management_System.Models
             #region Stuff Relations
             // the relation between stuff and payroll.
             modelBuilder.Entity<Stuff>()
-                .HasOne(s => s.Payroll)
-                .WithOne(p => p.Staff);
+                .HasMany(s => s.Payrolls)
+                .WithOne(p => p.Staff)
+                .HasForeignKey(p => p.StaffSSN);
 
             // the relation between stuff technician and laboratory screenings.
             modelBuilder.Entity<Stuff>()
@@ -145,8 +152,24 @@ namespace Hospital_Management_System.Models
                 .WithMany(p => p.Medicines);
             #endregion
 
+            #region Patient Diagnosis
+            modelBuilder.Entity<DiagnosisPatient>()
+                .HasKey(pd => new { pd.PatientId, pd.DiagnosisId });
+            
+            modelBuilder.Entity<DiagnosisPatient>()
+                .HasOne(pd => pd.Patient)
+                .WithMany(p => p.DiagnosisPatient)
+                .HasForeignKey(pd => pd.PatientId);
+
+            modelBuilder.Entity<DiagnosisPatient>()
+                .HasOne(pd => pd.Diagnosis)
+                .WithMany(d => d.DiagnosisPatient)
+                .HasForeignKey(pd => pd.DiagnosisId);
+            #endregion
+
         }
 
+        public DbSet<DiagnosisPatient> DiagnosisPatient { get; set; }
         public DbSet<Diagnosis> Diagnoses { get; set; }
         public DbSet<Stuff> Staffs { get; set; }
         public DbSet<Nurse> Nurses { get; set; }

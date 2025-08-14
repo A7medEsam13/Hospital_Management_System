@@ -10,5 +10,6 @@
         public ICollection<Prescription> Prescriptions { get; set; }
         public ICollection<Appointment> Appointments { get; set; }
         public ICollection<LaboratoryScreening> LaboratoryScreenings { get; set; }
+        public ICollection<Diagnosis> Diagnoses { get; set; }
     }
 }

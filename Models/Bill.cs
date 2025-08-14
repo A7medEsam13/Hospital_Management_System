@@ -10,7 +10,7 @@
         public decimal MedicineCost { get; set; }
         public decimal Total { get; set; }
         public int PatientId { get; set; } // Foreign key to Patient
-        public int? RoomId { get; set; }
+        public int? RoomId { get; set; } // foreign key of room.
         public decimal RemainingBalance { get; set; }
         public int PolicyNumber { get; set; }
 

@@ -64,7 +64,7 @@ namespace Hospital_Management_System.Controllers
 
 
         // getting all appointments
-        [HttpGet]
+        [HttpGet("All-Appointments")]
         public async Task<IActionResult> GetAllAppointments()
         {
             // Logic to get all appointments
@@ -131,7 +131,7 @@ namespace Hospital_Management_System.Controllers
         {
             // Logic to get appointments by doctor id
             var appointments = await _appointmentServices.GetAppointmentsByDoctorId(doctorId);
-            if (appointments == null || appointments.Count == 0)
+            if (appointments == null || !appointments.Any())
             {
                 // Log the case where no appointments are found for the given doctor id
                 _logger.LogError("No appointments found for doctor ID {DoctorId}.", doctorId);
@@ -143,7 +143,7 @@ namespace Hospital_Management_System.Controllers
 
         // updating an appointment
         [HttpPut("{id:int}")]
-        public async Task<IActionResult> UpdateAppointment(int id, AppointmentCreationDto appointmentDto)
+        public async Task<IActionResult> UpdateAppointment(int id, AppointmentUpdateDto appointmentDto)
         {
             // Logic to update an appointment
             if (appointmentDto == null || id <= 0)
@@ -159,10 +159,7 @@ namespace Hospital_Management_System.Controllers
                 _logger.LogError("Appointment with ID {Id} not found for update.", id);
                 return NotFound($"Appointment with ID {id} not found.");
             }
-            var updatedAppointment = _mapper.Map<Appointment>(appointmentDto);
-            updatedAppointment.Id = id; // Ensure the ID is set for the update
-            _appointmentServices.UpdateAppointment(id, updatedAppointment);
-            await _appointmentServices.SaveChangesAsync();
+            await _appointmentServices.UpdateAppointment(id, appointmentDto);
             // Log the successful update
             _logger.LogInformation("Appointment with ID {Id} updated successfully.", id);
             return Ok("Appointment updated successfully.");
@@ -187,7 +184,6 @@ namespace Hospital_Management_System.Controllers
                 return NotFound($"Appointment with ID {id} not found.");
             }
             await _appointmentServices.DeleteAppointment(id);
-            await _appointmentServices.SaveChangesAsync();
             // Log the successful deletion
             _logger.LogInformation("Appointment with ID {Id} deleted successfully.", id);
             return Ok("Appointment deleted successfully.");

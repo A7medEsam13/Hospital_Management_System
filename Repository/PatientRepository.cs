@@ -17,15 +17,18 @@ namespace Hospital_Management_System.Repository
             await _context.Patients.AddAsync(patient);
         }
 
-        public async Task<ICollection<Patient>> GetAllPatients()
+        public IQueryable<Patient> GetAllPatients()
         {
-            var patients = await _context.Patients.ToListAsync();
+            var patients = _context.Patients
+                .AsNoTracking();
             return patients;
         }
+
 
         public async Task<Patient> GetPatientById(int patientId)
         {
             var patient = await _context.Patients.FirstOrDefaultAsync(p => p.Id == patientId);
+                
             return patient;
         }
 

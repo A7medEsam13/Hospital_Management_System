@@ -26,9 +26,9 @@ namespace Hospital_Management_System.Services
 
         
 
-        public async Task<ICollection<Patient>> GetAllPatients()
+        public  IEnumerable<Patient> GetAllPatients()
         {
-            return await _patientRepository.GetAllPatients();
+            return _patientRepository.GetAllPatients().AsEnumerable();
         }
 
         public async Task<Patient> GetPatientById(int patientId)
@@ -45,6 +45,12 @@ namespace Hospital_Management_System.Services
         {
             name =name.ToLower();
             return  _patientRepository.GetPatientsByName(name);
+        }
+
+        public async Task<string> GetPatientFullName(int id)
+        {
+            var patient = await _patientRepository.GetPatientById(id);
+            return patient.FirstName + " " + patient.LastName;
         }
 
         public async Task RemovePatient(int patientId)
@@ -65,14 +71,11 @@ namespace Hospital_Management_System.Services
             throw new NotImplementedException();
         }
 
-        Task<IEnumerable<Patient>> IPatientServices.GetAllPatients()
-        {
-            throw new NotImplementedException();
-        }
+        
 
-        Task<Patient> IPatientServices.GetPatientByName(string name)
+        IEnumerable<Patient> IPatientServices.GetPatientByName(string name)
         {
-            throw new NotImplementedException();
+            return _patientRepository.GetPatientsByName(name);
         }
     }
 }

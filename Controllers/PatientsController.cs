@@ -80,8 +80,8 @@ namespace Hospital_Management_System.Controllers
         [HttpGet("{name:alpha}")]
         public async Task<IActionResult> GetPatientByName(string name)
         {
-            var patient = await _patientServices.GetPatientByName(name);
-            if (patient == null)
+            var patients =  _patientServices.GetPatientByName(name);
+            if (patients == null)
             {
                 // Log the error
                 _logger.LogError($"Patient with name {name} not found.");
@@ -89,14 +89,14 @@ namespace Hospital_Management_System.Controllers
             }
             // log the success
             _logger.LogInformation($"Patient with name {name} retrieved successfully.");
-            var patientDto = _mapper.Map<PatientCreationDto>(patient);
+            var patientDto = _mapper.Map<PatientCreationDto>(patients);
             return Ok(patientDto);
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllPatients()
+        public  IActionResult GetAllPatients()
         {
-            var patients = await _patientServices.GetAllPatients();
+            var patients =  _patientServices.GetAllPatients();
             if (patients == null || !patients.Any())
             {
                 // Log the error
@@ -105,7 +105,7 @@ namespace Hospital_Management_System.Controllers
             }
             // log the success
             _logger.LogInformation("All patients retrieved successfully.");
-            var patientDtos = _mapper.Map<IEnumerable<PatientCreationDto>>(patients);
+            var patientDtos = _mapper.Map<IEnumerable<PatientDisplayDto>>(patients);
             return Ok(patientDtos);
         }
 

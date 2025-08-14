@@ -6,11 +6,12 @@ namespace Hospital_Management_System.Models
     {
         public int Id { get; set; }
         public string Type { get; set; }
-        [ForeignKey("Patient")]
-        public int PatientId { get; set; } // Foreign key to Patient
         public decimal Cost { get; set; }
+        public string DepartmentName { set; get; }
+        public int Capacity { set; get; }
+        public int NumberOfPatients { set; get; }
 
-        public Patient Patient { get; set; } // Navigation property to Patient
+        public ICollection<Patient> Patients { get; set; } // Navigation property to Patient
         public ICollection<Bill> Bills { get; set; }
     }
 }

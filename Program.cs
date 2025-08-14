@@ -1,4 +1,4 @@
-
+using LoggerService;
 using Hospital_Management_System.Models;
 using Hospital_Management_System.Repository;
 using Hospital_Management_System.Services;
@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Serilog;
 using System.Reflection;
 using System.Text;
 
@@ -79,14 +80,36 @@ namespace Hospital_Management_System
             builder.Services.AddScoped<IPatientServices, PatientServices>();
             builder.Services.AddScoped<IPatientRepository, PatientRepository>();
             builder.Services.AddScoped<IAppointmentServices, AppointmentServices>();
+            builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
             builder.Services.AddScoped<IDoctorServices, DoctorServices>();
+            builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
             builder.Services.AddScoped<IStaffServices, StaffServices>();
             builder.Services.AddScoped<IStuffRepository, StuffRepository>();
+            builder.Services.AddScoped<IEmergencyContactRepository, EmergencyContactRepository>();
+            builder.Services.AddScoped<IEmergencyContactServices, EmergencyContactServices>();
+            builder.Services.AddScoped<IDiagnosisServices, DiagnosisServices>();
+            builder.Services.AddScoped<IDiagnosisRepository, DiagnosisRepository>();
+            builder.Services.AddScoped<IDiagnosisPatientRepository, DiagnosisPatientRepository>();
+            builder.Services.AddScoped<IRoomRepository, RoomRepository>();
+            builder.Services.AddScoped<IRoomService, RoomService>();
             #endregion
 
             builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
+
+            //Register the serilog.
+           Log.Logger = new LoggerConfiguration()
+           .MinimumLevel.Information()
+           .WriteTo.File("Logs/log-.txt", rollingInterval: RollingInterval.Day)
+           .CreateLogger();
+
+            
+
+            
+
+
+
 
             builder.Services.AddAuthentication(options =>
             {

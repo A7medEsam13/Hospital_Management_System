@@ -5,9 +5,11 @@
         public int Id { set; get; }
         public string Name { get; set; }
         public string Details { get; set; }
+        public string DoctorSSN { get; set; }
 
 
         // Navigation Properties
-        public ICollection<Patient> Patients { get; set; }
+        public ICollection<DiagnosisPatient> DiagnosisPatient { get; set; }
+        public Doctor Doctor { get; set; }
     }
 }

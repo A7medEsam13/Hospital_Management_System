@@ -7,8 +7,10 @@ namespace Hospital_Management_System.Services
         public Task AddPatient(PatientCreationDto patient);
         public Task RemovePatient(int patientId);
         public Task<Patient> GetPatientById(int patientId);
-        public Task<Patient> GetPatientByName(string name);
-        public Task<IEnumerable<Patient>> GetAllPatients();
+        public IEnumerable<Patient> GetPatientByName(string name);
+        public IEnumerable<Patient> GetAllPatients();
         public Task Updatepatient(PatientUpdateDto patient);
+        public Task<string> GetPatientFullName(int id);
+
     }
 }

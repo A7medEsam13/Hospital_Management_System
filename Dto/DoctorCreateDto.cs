@@ -13,9 +13,12 @@ namespace Hospital_Management_System.Dto
         public string Address { get; set; }
         public string DepartmentName { get; set; }
         public string SSN { get; set; }
+        public decimal Salary { get; set; }
 
         // doctor properties
         public string Qualification { get; set; }
         public string Specialization { get; set; }
+
+        public string UserName { get; set; }
     }
 }

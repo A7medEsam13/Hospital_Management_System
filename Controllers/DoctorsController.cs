@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -9,7 +10,7 @@ namespace Hospital_Management_System.Controllers
     /// <summary>
     /// displaying patients records
     /// Diagnosis Cases
-    /// Writing Preciptions
+    /// Writing Prescriptions
     /// </summary>
     [Route("api/[controller]")]
     [ApiController]
@@ -18,7 +19,6 @@ namespace Hospital_Management_System.Controllers
         private readonly ILogger<DoctorsController> _logger;
         private readonly IDoctorServices _doctorServices;
         private readonly IMapper _mapper;
-        private readonly IStaffServices _staffServices;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
 
@@ -26,14 +26,12 @@ namespace Hospital_Management_System.Controllers
             ILogger<DoctorsController> logger,
             IDoctorServices doctorServices,
             IMapper mapper,
-            IStaffServices staffServices,
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager)
         {
             _logger = logger;
             _doctorServices = doctorServices;
             _mapper = mapper;
-            _staffServices = staffServices;
             _userManager = userManager;
             _roleManager = roleManager;
         }
@@ -47,23 +45,16 @@ namespace Hospital_Management_System.Controllers
                 return BadRequest("Invalid doctor data.");
             }
 
-            // mapping and adding the staff.
-            var stuff = _mapper.Map<Stuff>(dto);
-            var stuffDto = _mapper.Map<StuffCreateDto>(stuff);
+            if (!ModelState.IsValid)
+            {
+                _logger.LogError("Invalid model state for doctor data.");
+                return BadRequest(ModelState);
+            }
+            await _doctorServices.Add(dto);
+            return Created();
 
-            var user = await _userManager.FindByIdAsync(stuff.UserId);
 
-            IdentityResult result = await _userManager.AddToRoleAsync(user, "Doctor");
 
-            await _staffServices.Create(stuffDto);
-            _logger.LogInformation("Staff added successfully with SSN {StaffSSN}.", stuff.SSN);
-
-            // mapping and adding the dioctor
-            var doctor = _mapper.Map<Doctor>(dto);
-            await _doctorServices.Add(doctor);
-            await _doctorServices.SaveAsync();
-            _logger.LogInformation("Doctor added successfully with ID {DoctorId}.", doctor.SSN);
-            return Ok("Doctor added successfully.");
         }
 
         [HttpGet]
@@ -79,7 +70,7 @@ namespace Hospital_Management_System.Controllers
             return Ok(doctorDtos);
         }
 
-        [HttpGet("{id:int}")]
+        [HttpGet("by-id")]
         public  IActionResult GetDoctorById(string id)
         {
             var doctor = _doctorServices.GetById(id);
@@ -92,7 +83,7 @@ namespace Hospital_Management_System.Controllers
             return Ok(doctorDto);
         }
 
-        [HttpPut("{id:int}")]
+        [HttpPut]
         public IActionResult UpdateDoctor(string id, DoctorUpdateDto dto)
         {
             if (dto == null)
@@ -100,15 +91,8 @@ namespace Hospital_Management_System.Controllers
                 _logger.LogError("Doctor data is null.");
                 return BadRequest("Invalid doctor data.");
             }
-            var doctor = _doctorServices.GetById(id);
-            if (doctor == null)
-            {
-                _logger.LogWarning("Doctor with ID {DoctorId} not found.", id);
-                return NotFound($"Doctor with ID {id} not found.");
-            }
-            _mapper.Map(dto, doctor);
-            _doctorServices.Update(doctor);
-            _doctorServices.SaveAsync();
+            
+            _doctorServices.Update(dto);
             _logger.LogInformation("Doctor with ID {DoctorId} updated successfully.", id);
             return Ok("Doctor updated successfully.");
         }
@@ -122,8 +106,6 @@ namespace Hospital_Management_System.Controllers
                 _logger.LogError("Doctor with ID {DoctorId} not found.", id);
                 return NotFound($"Doctor with ID {id} not found.");
             }
-            await _staffServices.Terminate(doctor.SSN);
-            await _doctorServices.SaveAsync();
             _logger.LogInformation("Doctor with ID {DoctorId} has been terminated successfully.", id);
             return Ok("Doctor deleted successfully.");
         }

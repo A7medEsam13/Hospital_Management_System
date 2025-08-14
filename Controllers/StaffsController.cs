@@ -76,7 +76,7 @@ namespace Hospital_Management_System.Controllers
             return Ok();
         }
 
-        [HttpDelete("{id:alpha}")]
+        [HttpDelete]
         public async Task<IActionResult> TerminateStaff(string id)
         {
             var staff = await _staffServices.GetById(id);
