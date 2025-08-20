@@ -9,6 +9,6 @@
 
         // Navigation property
         public ICollection<Bill> Bills { get; set; }
-        public ICollection<Prescription> Prescriptions { get; set; }
+        public ICollection<PrescriptionMedicine> PrescriptionMedicines { get; set; }
     }
 }

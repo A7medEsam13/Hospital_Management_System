@@ -8,7 +8,6 @@ namespace Hospital_Management_System.Models
         [ForeignKey("Patient")]
         public int PatientId { get; set; } // Foreign key to Patient
         public DateOnly Date { get; set; }
-        public int Dosage { get; set; }
         [ForeignKey("Doctor")]
         public string DoctorId { get; set; } // Foreign key to Doctor
 
@@ -16,6 +15,7 @@ namespace Hospital_Management_System.Models
         // Navigation properties
         public Patient Patient { get; set; }
         public Doctor Doctor { get; set; }
-        public ICollection<Medicine> Medicines { get; set; }
+        public ICollection<PrescriptionMedicine> PrescriptionMedicines { get; set; }
+        public ICollection<LaboratoryScreeningPrescription> LaboratoryScreeningPrescriptions { get; set; }
     }
 }

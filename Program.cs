@@ -92,6 +92,9 @@ namespace Hospital_Management_System
             builder.Services.AddScoped<IDiagnosisPatientRepository, DiagnosisPatientRepository>();
             builder.Services.AddScoped<IRoomRepository, RoomRepository>();
             builder.Services.AddScoped<IRoomService, RoomService>();
+            builder.Services.AddScoped<IAccountService, AccountService>();
+            builder.Services.AddScoped<IPrescriptionMedicineRepository, PrescriptionMedicineRepository>();
+            builder.Services.AddScoped<IPrescriptionRepository, PrescriptionRepository>();
             #endregion
 
             builder.Services.AddIdentity<ApplicationUser, IdentityRole>()

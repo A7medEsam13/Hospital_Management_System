@@ -9,5 +9,6 @@
         public Task<IEnumerable<Stuff>> GetAll();
         public Task SaveAsync();
         public Task<bool> IsExists(string ssn);
+        public Task<string> GetStuffSSN(string userID);
     }
 }

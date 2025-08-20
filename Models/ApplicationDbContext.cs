@@ -145,11 +145,20 @@ namespace Hospital_Management_System.Models
 
             #endregion
 
-            #region Medicine Relations
-            // the relation between medicine and prescriptions.
-            modelBuilder.Entity<Medicine>()
-                .HasMany(m=>m.Prescriptions)
-                .WithMany(p => p.Medicines);
+            #region Medicine Prescription
+            modelBuilder.Entity<PrescriptionMedicine>()
+                .HasKey(pm => new { pm.PrescriptionId, pm.MedicineId });
+
+            modelBuilder.Entity<PrescriptionMedicine>()
+                .HasOne(pm => pm.Medicine)
+                .WithMany(m => m.PrescriptionMedicines)
+                .HasForeignKey(pm => pm.MedicineId);
+
+            modelBuilder.Entity<PrescriptionMedicine>()
+                .HasOne(pm => pm.Prescription)
+                .WithMany(p => p.PrescriptionMedicines)
+                .HasForeignKey(pm => pm.PrescriptionId);
+            
             #endregion
 
             #region Patient Diagnosis
@@ -167,8 +176,27 @@ namespace Hospital_Management_System.Models
                 .HasForeignKey(pd => pd.DiagnosisId);
             #endregion
 
+            #region Prescription Screening
+            modelBuilder.Entity<LaboratoryScreeningPrescription>()
+                .HasKey(lp => new { lp.PrescriptionId, lp.LaboratoryScreeningId });
+
+
+            modelBuilder.Entity<LaboratoryScreeningPrescription>()
+                .HasOne(lp => lp.Prescription)
+                .WithMany(p => p.LaboratoryScreeningPrescriptions)
+                .HasForeignKey(lp => lp.PrescriptionId);
+
+            modelBuilder.Entity<LaboratoryScreeningPrescription>()
+                .HasOne(lp => lp.LaboratoryScreening)
+                .WithMany(ls => ls.LaboratoryScreeningPrescriptions)
+                .HasForeignKey(lp => lp.LaboratoryScreeningId);
+            #endregion
+
         }
 
+
+        public DbSet<PrescriptionMedicine> PrescriptionMedicines { set; get; }
+        public DbSet<LaboratoryScreeningPrescription> LaboratoryScreeningPrescription { set; get; }
         public DbSet<DiagnosisPatient> DiagnosisPatient { get; set; }
         public DbSet<Diagnosis> Diagnoses { get; set; }
         public DbSet<Stuff> Staffs { get; set; }

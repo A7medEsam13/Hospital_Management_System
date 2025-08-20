@@ -4,6 +4,7 @@ using Hospital_Management_System.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Hospital_Management_System.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250815161716_setPrescriptionScreeningRelationship")]
+    partial class setPrescriptionScreeningRelationship
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -530,6 +533,9 @@ namespace Hospital_Management_System.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<int>("Dosage")
+                        .HasColumnType("int");
+
                     b.Property<int>("PatientId")
                         .HasColumnType("int");
 
@@ -540,29 +546,6 @@ namespace Hospital_Management_System.Migrations
                     b.HasIndex("PatientId");
 
                     b.ToTable("Prescriptions");
-                });
-
-            modelBuilder.Entity("Hospital_Management_System.Models.PrescriptionMedicine", b =>
-                {
-                    b.Property<int>("PrescriptionId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("MedicineId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Dosage")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Duration")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("PrescriptionId", "MedicineId");
-
-                    b.HasIndex("MedicineId");
-
-                    b.ToTable("PrescriptionMedicines");
                 });
 
             modelBuilder.Entity("Hospital_Management_System.Models.Room", b =>
@@ -643,6 +626,21 @@ namespace Hospital_Management_System.Migrations
                     b.ToTable("Staffs");
 
                     b.UseTptMappingStrategy();
+                });
+
+            modelBuilder.Entity("MedicinePrescription", b =>
+                {
+                    b.Property<int>("MedicinesId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PrescriptionsId")
+                        .HasColumnType("int");
+
+                    b.HasKey("MedicinesId", "PrescriptionsId");
+
+                    b.HasIndex("PrescriptionsId");
+
+                    b.ToTable("MedicinePrescription");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -1030,25 +1028,6 @@ namespace Hospital_Management_System.Migrations
                     b.Navigation("Patient");
                 });
 
-            modelBuilder.Entity("Hospital_Management_System.Models.PrescriptionMedicine", b =>
-                {
-                    b.HasOne("Hospital_Management_System.Models.Medicine", "Medicine")
-                        .WithMany("PrescriptionMedicines")
-                        .HasForeignKey("MedicineId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Hospital_Management_System.Models.Prescription", "Prescription")
-                        .WithMany("PrescriptionMedicines")
-                        .HasForeignKey("PrescriptionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Medicine");
-
-                    b.Navigation("Prescription");
-                });
-
             modelBuilder.Entity("Hospital_Management_System.Models.Stuff", b =>
                 {
                     b.HasOne("Hospital_Management_System.Models.ApplicationUser", "User")
@@ -1058,6 +1037,21 @@ namespace Hospital_Management_System.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("MedicinePrescription", b =>
+                {
+                    b.HasOne("Hospital_Management_System.Models.Medicine", null)
+                        .WithMany()
+                        .HasForeignKey("MedicinesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Hospital_Management_System.Models.Prescription", null)
+                        .WithMany()
+                        .HasForeignKey("PrescriptionsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -1149,11 +1143,6 @@ namespace Hospital_Management_System.Migrations
                     b.Navigation("LaboratoryScreeningPrescriptions");
                 });
 
-            modelBuilder.Entity("Hospital_Management_System.Models.Medicine", b =>
-                {
-                    b.Navigation("PrescriptionMedicines");
-                });
-
             modelBuilder.Entity("Hospital_Management_System.Models.Patient", b =>
                 {
                     b.Navigation("Bills");
@@ -1172,8 +1161,6 @@ namespace Hospital_Management_System.Migrations
             modelBuilder.Entity("Hospital_Management_System.Models.Prescription", b =>
                 {
                     b.Navigation("LaboratoryScreeningPrescriptions");
-
-                    b.Navigation("PrescriptionMedicines");
                 });
 
             modelBuilder.Entity("Hospital_Management_System.Models.Room", b =>

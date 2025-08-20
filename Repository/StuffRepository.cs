@@ -29,11 +29,10 @@ namespace Hospital_Management_System.Repository
             return staff;
         }
 
-        public async Task<Stuff> GetById(int id)
+        public async Task<string> GetStuffSSN(string userID)
         {
-            var staff = await _context.Staffs.FirstOrDefaultAsync(s => s.SSN == id.ToString());
-            
-            return staff;
+            var stuff = await _context.Staffs.FirstOrDefaultAsync(s => s.UserId == userID);
+            return stuff.SSN;
         }
 
         public async Task<bool> IsExists(string ssn)
