@@ -10,13 +10,15 @@ using Microsoft.OpenApi.Models;
 using Serilog;
 using System.Reflection;
 using System.Text;
+using Hospital_Management_System.Extensions;
+using System.Threading.Tasks;
 
 
 namespace Hospital_Management_System
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -61,6 +63,8 @@ namespace Hospital_Management_System
             });
 
 
+            builder.Services.AddApplicationServices(builder.Configuration);
+
 
             // registering automapper services
             builder.Services.AddAutoMapper(cfg => cfg.AddMaps(typeof(Program).Assembly));
@@ -73,33 +77,15 @@ namespace Hospital_Management_System
             });
 
 
-            ///summary : 
-            //// registering the injection of services
-            #region injection of services
-
-            builder.Services.AddScoped<IPatientServices, PatientServices>();
-            builder.Services.AddScoped<IPatientRepository, PatientRepository>();
-            builder.Services.AddScoped<IAppointmentServices, AppointmentServices>();
-            builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
-            builder.Services.AddScoped<IDoctorServices, DoctorServices>();
-            builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
-            builder.Services.AddScoped<IStaffServices, StaffServices>();
-            builder.Services.AddScoped<IStuffRepository, StuffRepository>();
-            builder.Services.AddScoped<IEmergencyContactRepository, EmergencyContactRepository>();
-            builder.Services.AddScoped<IEmergencyContactServices, EmergencyContactServices>();
-            builder.Services.AddScoped<IDiagnosisServices, DiagnosisServices>();
-            builder.Services.AddScoped<IDiagnosisRepository, DiagnosisRepository>();
-            builder.Services.AddScoped<IDiagnosisPatientRepository, DiagnosisPatientRepository>();
-            builder.Services.AddScoped<IRoomRepository, RoomRepository>();
-            builder.Services.AddScoped<IRoomService, RoomService>();
-            builder.Services.AddScoped<IAccountService, AccountService>();
-            builder.Services.AddScoped<IPrescriptionMedicineRepository, PrescriptionMedicineRepository>();
-            builder.Services.AddScoped<IPrescriptionRepository, PrescriptionRepository>();
-            #endregion
+            
 
             builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
+
+
+
+           
 
             //Register the serilog.
            Log.Logger = new LoggerConfiguration()
@@ -108,10 +94,6 @@ namespace Hospital_Management_System
            .CreateLogger();
 
             
-
-            
-
-
 
 
             builder.Services.AddAuthentication(options =>
@@ -130,8 +112,7 @@ namespace Hospital_Management_System
                 {
                     ValidateIssuer = true,
                     ValidIssuer = builder.Configuration["JWT:Issuer"],
-                    ValidateAudience = true,
-                    ValidAudience = builder.Configuration["JWT:aud"],
+                    ValidateAudience = false,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:securityKey"]))
                 };
             });
@@ -144,6 +125,11 @@ namespace Hospital_Management_System
                 app.MapOpenApi();
                 app.UseSwagger();
                 app.UseSwaggerUI(); 
+            }
+
+            using(var scope = app.Services.CreateScope())
+            {
+                await DataSeeder.SeedAdmin(scope.ServiceProvider);
             }
 
             app.UseAuthorization();

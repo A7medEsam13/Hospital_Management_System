@@ -1,22 +1,20 @@
 ﻿
 using Hospital_Management_System.Repository;
+using Hospital_Management_System.UnitOfWork;
 using System.Threading.Tasks;
 
 namespace Hospital_Management_System.Services
 {
     public class RoomService : IRoomService
     {
-        private readonly IRoomRepository _roomRepository;
-        private readonly IPatientRepository _patientRepository;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<RoomService> _logger;
 
-        public RoomService(IRoomRepository roomRepository,
-            ILogger<RoomService> logger,
-            IPatientRepository patientRepository)
+        public RoomService(ILogger<RoomService> logger,
+            IUnitOfWork unitOfWork)
         {
-            _roomRepository = roomRepository;
             _logger = logger;
-            _patientRepository = patientRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<bool> AddPatientToRoom(int roomId, int patientId)
@@ -28,7 +26,7 @@ namespace Hospital_Management_System.Services
             }
 
             _logger.LogInformation("Getting the patient from database with ID {pID}", patientId);
-            var patient = await _patientRepository.GetPatientById(patientId);
+            var patient = await _unitOfWork.Patients.GetPatientById(patientId);
             if(patient == null)
             {
                 _logger.LogError("patient with ID {id} is not exist", patientId);
@@ -39,15 +37,15 @@ namespace Hospital_Management_System.Services
             _logger.LogInformation("setting the room Id to {Id}", roomId);
             patient.RoomId = roomId;
             _logger.LogInformation("updating and saving the patient details in the database");
-            _patientRepository.Updatepatient(patient);
+            _unitOfWork.Patients.Updatepatient(patient);
 
 
             _logger.LogInformation("Updating the Number of patients of room {id}", roomId);
-            var room = await _roomRepository.GetRoomByID(roomId);
+            var room = await _unitOfWork.Rooms.GetRoomByID(roomId);
             room.NumberOfPatients++;
-            await _roomRepository.UpdateNumberOfPatients(room);
+            await _unitOfWork.Rooms.UpdateNumberOfPatients(room);
             _logger.LogInformation("Saving changes to database");
-            await _roomRepository.SaveAsync();
+            await _unitOfWork.Complete();
 
             return true;
             
@@ -65,14 +63,14 @@ namespace Hospital_Management_System.Services
             };
 
             _logger.LogInformation("Adding and saving the room to database");
-            await _roomRepository.AddRoom(room);
-            await _roomRepository.SaveAsync();
+            await _unitOfWork.Rooms.AddRoom(room);
+            await _unitOfWork.Complete();
         }
 
         public async Task DeletePatientFromRoom(int patientId)
         {
             _logger.LogInformation("Getting the patient from database");
-            var patient = await _patientRepository.GetPatientById(patientId);
+            var patient = await _unitOfWork.Patients.GetPatientById(patientId);
             if (patient == null)
             {
                 _logger.LogError("Patient with ID {id} is not exist", patientId);
@@ -80,14 +78,14 @@ namespace Hospital_Management_System.Services
             }
             patient.RoomId = 0;
             _logger.LogInformation("updating and saving the patient data");
-            _patientRepository.Updatepatient(patient);
-            await _roomRepository.SaveAsync();
+            _unitOfWork.Patients.Updatepatient(patient);
+            await _unitOfWork.Complete();
         }
 
         public IEnumerable<RoomDisplayDto> GetAllRooms()
         {
             _logger.LogInformation("Getting all rooms from the database");
-            var rooms = _roomRepository.GetAllRooms()
+            var rooms = _unitOfWork.Rooms.GetAllRooms()
                 .Select(r => new RoomDisplayDto()
                 {
                     Id = r.Id,
@@ -106,7 +104,7 @@ namespace Hospital_Management_System.Services
         public IEnumerable<RoomDisplayDto> GetDepartmentRooms(string departmentName)
         {
             _logger.LogInformation("getting all {dep} department room", departmentName);
-            var rooms = _roomRepository.GetDepartmentRooms(departmentName)
+            var rooms = _unitOfWork.Rooms.GetDepartmentRooms(departmentName)
                 .Select(r => new RoomDisplayDto()
                 {
                     Id = r.Id,
@@ -133,13 +131,13 @@ namespace Hospital_Management_System.Services
         public async Task<decimal> GetRoomCost(int roomId)
         {
             _logger.LogInformation("getting the room {id} cost from database", roomId);
-            return await _roomRepository.GetRoomCost(roomId);
+            return await _unitOfWork.Rooms.GetRoomCost(roomId);
         }
 
         public async Task<int?> GetRoomIdByPatientId(int patientId)
         {
             _logger.LogInformation("getting the room ID of patient {id}", patientId);
-            var roomID = await _roomRepository.GetRoomIdByPatientId(patientId);
+            var roomID = await _unitOfWork.Rooms.GetRoomIdByPatientId(patientId);
             if (roomID == null)
             {
                 _logger.LogWarning("patient {id} does not have any room", patientId);
@@ -152,7 +150,7 @@ namespace Hospital_Management_System.Services
         public  IEnumerable<PatientDisplayDto> GetRoomPatients(int roomId)
         {
             _logger.LogInformation("getting all patients of room {id}", roomId);
-            var patients = _patientRepository.GetAllPatients();
+            var patients = _unitOfWork.Patients.GetAllPatients();
             var roomPatients = patients.Where(p => p.RoomId == roomId)
                 .Select(p => new PatientDisplayDto()
                 {
@@ -179,7 +177,7 @@ namespace Hospital_Management_System.Services
 
         private async Task<bool> IsFull(int roomID)
         {
-            var room = await _roomRepository.GetRoomByID(roomID);
+            var room = await _unitOfWork.Rooms.GetRoomByID(roomID);
             if (room.NumberOfPatients < room.Capacity)
                 return false;
             return true;

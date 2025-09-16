@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
 using System.Threading.Tasks;
 
 namespace Hospital_Management_System.Controllers
 {
+    [Authorize("Admin,Receptionest")]
     [Route("api/[controller]")]
     [ApiController]
     public class EmergencyContactsController : ControllerBase

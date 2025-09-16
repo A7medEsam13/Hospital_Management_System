@@ -17,10 +17,11 @@ namespace Hospital_Management_System.Repository
             await _context.Patients.AddAsync(patient);
         }
 
-        public IQueryable<Patient> GetAllPatients()
+        public List<Patient> GetAllPatients()
         {
             var patients = _context.Patients
-                .AsNoTracking();
+                .AsNoTracking()
+                .ToList();
             return patients;
         }
 
@@ -35,7 +36,9 @@ namespace Hospital_Management_System.Repository
         public IEnumerable<Patient> GetPatientsByName(string name)
         {
             return _context.Patients
-                .Where(p => (p.FirstName + " " + p.LastName).ToLower() == name);
+                .AsNoTracking()
+                .Where(p => (p.FirstName + " " + p.LastName).Contains(name))
+                .ToList();
         }
 
         public async Task RemovePatient(int patientId)

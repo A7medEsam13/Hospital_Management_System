@@ -24,29 +24,32 @@ namespace Hospital_Management_System.Repository
                 .ExecuteDeleteAsync();
         }
 
-        public IQueryable<Diagnosis> GetAll()
+        public List<Diagnosis> GetAll()
         {
             return _context.Diagnoses
                 .AsNoTracking()
                 .Include(d => d.Doctor)
                 .Include(d => d.DiagnosisPatient)
-                    .ThenInclude(pd => pd.Patient);
+                    .ThenInclude(pd => pd.Patient)
+                    .ToList();
         }
 
-        public IQueryable<Diagnosis> GetAllDoctorDiagnosis(string doctorSSN)
+        public List<Diagnosis> GetAllDoctorDiagnosis(string doctorSSN)
         {
             return _context.Diagnoses
                 .AsNoTracking()
                 .Where(d => d.DoctorSSN == doctorSSN)
-                .Include(d => d.Doctor);
+                .Include(d => d.Doctor)
+                .ToList();
         }
 
-        public IQueryable<Diagnosis> GetAllPatientDiagnosis(int patientId)
+        public List<Diagnosis> GetAllPatientDiagnosis(int patientId)
         {
             return _context.DiagnosisPatient
                 .AsNoTracking()
                 .Where(pd => pd.PatientId == patientId)
-                .Select(pd => pd.Diagnosis);
+                .Select(pd => pd.Diagnosis)
+                .ToList();
                 
         }
 

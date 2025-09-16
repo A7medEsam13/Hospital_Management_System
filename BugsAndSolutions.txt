@@ -1,7 +1,0 @@
--In this file, i will document the bugs that i faced in this project implementation and solutions of it.
-
-1 - To use the app.UseSwagger(); app.UseSwaggerUI(); middlewares 
-  -- install Swashbuckle.AspNetCore packege.
-  -- modifying the configurations in the launchSettings.json file.
-   --- adding launchUrl property to the profiles section.
-

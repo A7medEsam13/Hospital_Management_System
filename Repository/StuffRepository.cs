@@ -18,7 +18,7 @@ namespace Hospital_Management_System.Repository
         public async Task<IEnumerable<Stuff>> GetAll()
         {
             var staffs = await _context.Staffs
-                .Where(s=>s.IsTerminated)
+                .Where(s=>!s.IsTerminated)
                 .ToListAsync();
             return staffs;
         }
@@ -27,6 +27,11 @@ namespace Hospital_Management_System.Repository
         {
             var staff = await _context.Staffs.FirstOrDefaultAsync(s => s.SSN == ssn);
             return staff;
+        }
+
+        public async Task<Stuff> GetStuffByUserID(string userID)
+        {
+            return await _context.Staffs.FirstOrDefaultAsync(s => s.UserId == userID);
         }
 
         public async Task<string> GetStuffSSN(string userID)

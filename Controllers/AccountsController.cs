@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Hospital_Management_System.UnitOfWork;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -16,16 +17,22 @@ namespace Hospital_Management_System.Controllers
         private readonly IConfiguration _config;
         private readonly ILogger<AccountsController> _logger;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IAccountService _accountService;
+        private readonly IUnitOfWork _unitOfWork;
 
         public AccountsController(UserManager<ApplicationUser> userManager,
             IConfiguration config,
             ILogger<AccountsController> logger,
-            RoleManager<IdentityRole> roleManager)
+            RoleManager<IdentityRole> roleManager,
+            IAccountService accountService,
+            IUnitOfWork unitOfWork)
         {
             _userManager = userManager;
             _config = config;
             _logger = logger;
             _roleManager = roleManager;
+            _accountService = accountService;
+            _unitOfWork = unitOfWork;
         }
 
         [HttpPost("Register")]
@@ -33,7 +40,6 @@ namespace Hospital_Management_System.Controllers
         {
             if (ModelState.IsValid)
             {
-
                 ApplicationUser user = new()
                 {
                     Email = dto.Email,
@@ -45,7 +51,14 @@ namespace Hospital_Management_System.Controllers
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User {UserName} registered successfully", dto.UserName);
-                    return Ok("Created");
+
+                    var stuff = await _unitOfWork.Stuffs.GetById(dto.StuffSSN);
+                    stuff.UserId = user.Id;
+                    _unitOfWork.Stuffs.Update(stuff);
+
+                    await _userManager.AddToRoleAsync(user, stuff.Role);
+                    await _unitOfWork.Complete();
+                    return Ok(new { message = "Account Has Created Successfully!", role = stuff.Role });
                 }
 
                 foreach (var item in result.Errors)
@@ -63,7 +76,7 @@ namespace Hospital_Management_System.Controllers
             ApplicationUser userFromDB = await _userManager.FindByNameAsync(dto.UserName);
             if (userFromDB != null)
             {
-                bool found = await _userManager.CheckPasswordAsync(userFromDB,dto.Password);
+                bool found = await _userManager.CheckPasswordAsync(userFromDB, dto.Password);
                 if (found)
                 {
                     // generate token
@@ -75,9 +88,9 @@ namespace Hospital_Management_System.Controllers
 
                     var userRoles = await _userManager.GetRolesAsync(userFromDB);
 
-                    foreach(var role in userRoles)
+                    foreach (var role in userRoles)
                     {
-                        userClaims.Add(new Claim(ClaimTypes.Role, role));   
+                        userClaims.Add(new Claim(ClaimTypes.Role, role));
                     }
 
                     var signInKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JWT:securityKey"]));
@@ -100,33 +113,24 @@ namespace Hospital_Management_System.Controllers
                     });
                 }
                 ModelState.AddModelError("UserName", "Username or password Invalid");
-
             }
             return BadRequest(ModelState);
-
         }
 
         [HttpDelete("Delete")]
         public async Task<IActionResult> Delete(string userName)
         {
-            ApplicationUser user = await _userManager.FindByNameAsync(userName);
-            if (user != null)
+            IdentityResult result = await _accountService.DeleteAccount(userName);
+            if (result.Succeeded)
             {
-                IdentityResult result = await _userManager.DeleteAsync(user);
-                if (result.Succeeded)
-                {
-                    _logger.LogInformation("User {UserName} deleted successfully", userName);
-                    return Ok("Deleted");
-                }
-                foreach (var item in result.Errors)
-                {
-                    ModelState.AddModelError(item.Code, item.Description);
-                }
+                _logger.LogInformation("User {UserName} deleted successfully", userName);
+                return Ok("Deleted");
             }
-            else
+            foreach (var item in result.Errors)
             {
-                ModelState.AddModelError("UserName", "User not found");
+                ModelState.AddModelError(item.Code, item.Description);
             }
+
             _logger.LogError("Deletion failed for user {UserName} with errors: {Errors}", userName, ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
             return BadRequest(ModelState);
         }

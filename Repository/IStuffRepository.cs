@@ -10,5 +10,6 @@
         public Task SaveAsync();
         public Task<bool> IsExists(string ssn);
         public Task<string> GetStuffSSN(string userID);
+        public Task<Stuff> GetStuffByUserID(string userID);
     }
 }

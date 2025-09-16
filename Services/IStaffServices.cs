@@ -7,5 +7,6 @@
         public Task<Stuff> GetById(string ssn);
         public Task Update(StuffUpdateDto staff);
         public Task<IEnumerable<StuffDisplayDto>> GetAll();
+        public Task<StuffDisplayDto> GetByUserID(string userID);
     }
 }

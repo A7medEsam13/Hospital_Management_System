@@ -13,5 +13,6 @@ namespace Hospital_Management_System.Dto
 
         [DataType(DataType.EmailAddress)] 
         public string Email { get; set; }
+        public string StuffSSN { get; set; }
     }
 }

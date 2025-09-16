@@ -7,6 +7,8 @@
         [ForeignKey("Staff")]
         public string StaffSSN { get; set; }
         public string IBAN { get; set; }
+        public List<DateOnly> UpdatedDate { set; get; } = new List<DateOnly>();
+        public List<DateTime> DrawTimes { get; set; } = new List<DateTime>();
 
         // Navigation properties
         public Stuff Staff { get; set; }    

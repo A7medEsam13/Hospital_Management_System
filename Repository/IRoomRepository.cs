@@ -3,12 +3,11 @@
     public interface IRoomRepository
     {
         public Task AddRoom(Room room);
-        public IQueryable<Room> GetAllRooms();
-        public IQueryable<Room> GetDepartmentRooms(string departmentName);
-        public Task<int?> GetRoomIdByPatientId(int patientId);
+        public List<Room> GetAllRooms();
+        public List<Room> GetDepartmentRooms(string departmentName);
+        public Task<int> GetRoomIdByPatientId(int patientId);
         public Task<decimal> GetRoomCost(int roomId);
         public Task<Room> GetRoomByID(int roomID);
         public Task UpdateNumberOfPatients(Room room);
-        public Task SaveAsync();
     }
 }

@@ -28,23 +28,12 @@ namespace Hospital_Management_System.Models
                 .WithOne(p => p.Patient)
                 .HasForeignKey(p => p.PatientId);
 
-            // the relation between patient and insurances.
-            modelBuilder.Entity<Patient>()
-                .HasMany(p => p.insurances)
-                .WithOne(i => i.Patient)
-                .HasForeignKey(i => i.PatientId);
-
             // the relation between patient and bills.  
             modelBuilder.Entity<Patient>()
                 .HasMany(p => p.Bills)
                 .WithOne(b => b.Patient)
                 .HasForeignKey(b => b.PatientId);
 
-            // the relation between patient and medical history.
-            modelBuilder.Entity<Patient>()
-                .HasMany(p => p.MedicalHistory)
-                .WithOne(m => m.Patient)
-                .HasForeignKey(m => m.PatientId);
 
             // the relation between patient and diagnoses.
             modelBuilder.Entity<Patient>()
@@ -99,11 +88,7 @@ namespace Hospital_Management_System.Models
 
             #endregion
 
-            #region Nurse
-            modelBuilder.Entity<Nurse>()
-                .ToTable("Nurses");
 
-            #endregion
 
             #region Stuff Relations
             // the relation between stuff and payroll.
@@ -120,11 +105,6 @@ namespace Hospital_Management_System.Models
             #endregion
 
             #region Bill Relations
-            // the relation between bill and insurance.
-            modelBuilder.Entity<Bill>()
-                .HasOne(b => b.Insurance)
-                .WithMany(i => i.Bills)
-                .HasForeignKey(b => b.PolicyNumber);
 
             // the relation between bill and room.
             modelBuilder.Entity<Bill>()
@@ -132,16 +112,11 @@ namespace Hospital_Management_System.Models
                 .WithMany(r => r.Bills)
                 .HasForeignKey(b => b.RoomId);
 
-            // the relation between bill and laboratory screenings.
-            modelBuilder.Entity<Bill>()
-                .HasMany(b => b.LaboratoryScreenings)
-                .WithOne(l => l.Bill)
-                .HasForeignKey(l => l.BillId);
-
             // the relation between bill and medicines.
             modelBuilder.Entity<Bill>()
-                .HasMany(b => b.Medicine)
-                .WithMany(m => m.Bills);
+                .HasMany(b => b.Prescriptions)
+                .WithOne(m => m.Bill)
+                .HasForeignKey(pm => pm.BillID);
 
             #endregion
 
@@ -200,17 +175,14 @@ namespace Hospital_Management_System.Models
         public DbSet<DiagnosisPatient> DiagnosisPatient { get; set; }
         public DbSet<Diagnosis> Diagnoses { get; set; }
         public DbSet<Stuff> Staffs { get; set; }
-        public DbSet<Nurse> Nurses { get; set; }
         public DbSet<Payroll> Payrolls { get; set; }
         public DbSet<Patient> Patients { get; set; }
         public DbSet<Appointment> Appointments { get; set; }
-        public DbSet<MedicalHistory> MedicalRecords { get; set; }
         public DbSet<Prescription> Prescriptions { get; set; }
         public DbSet<Medicine> Medicines { get; set; }
         public DbSet<Doctor> Doctors { get; set; }
         public DbSet<Bill> Bills { get; set; }
         public DbSet<EmergencyContact> EmergencyContacts { get; set; }
-        public DbSet<Insurance> Insurances { get; set; }
         public DbSet<Room> Rooms { get; set; }
         public DbSet<LaboratoryScreening> LaboratoryScreenings { get; set; }
         

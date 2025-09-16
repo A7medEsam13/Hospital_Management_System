@@ -8,6 +8,13 @@ namespace Hospital_Management_System.Mapping
         {
             CreateMap<Stuff, StuffCreateDto>()
                 .ReverseMap();
+
+            CreateMap<Stuff, StuffDisplayDto>()
+                .ReverseMap();
+
+
+            CreateMap<Stuff, StuffUpdateDto>()
+                .ReverseMap();
         }
     }
 }

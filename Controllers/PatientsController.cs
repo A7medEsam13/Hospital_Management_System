@@ -1,17 +1,29 @@
 ﻿using AutoMapper;
 using Hospital_Management_System.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 
 namespace Hospital_Management_System.Controllers
 {
 
+    /*
+     * {
+  "userName": "aesam4168@gmail.com",
+  "password": "Admin@123"
+}
+     */
+
+
+
+    // 
     /// <summary>
     /// book appointments
     /// following the medical records
     /// show bills
     /// </summary>
-
+    [Authorize(Roles = "Admin")]
     [Route("api/[controller]")]
     [ApiController]
     public class PatientsController : ControllerBase
@@ -19,14 +31,17 @@ namespace Hospital_Management_System.Controllers
         private readonly ILogger<PatientsController> _logger;
         private readonly IMapper _mapper;
         private readonly IPatientServices _patientServices;
+        private readonly IEmergencyContactServices _emergencyContactServices;
         public PatientsController(
             ILogger<PatientsController> logger,
             IPatientServices patientServices,
-            IMapper mapper)
+            IMapper mapper,
+            IEmergencyContactServices emergencyContactServices)
         {
             _logger = logger;
             _patientServices = patientServices;
             _mapper = mapper;
+            _emergencyContactServices = emergencyContactServices;
         }
 
         [HttpPost]
@@ -47,13 +62,15 @@ namespace Hospital_Management_System.Controllers
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> RemovePatient(int id)
         {
-            var patient = _patientServices.GetPatientById(id);
+            var patient = await _patientServices.GetPatientById(id);
             if (patient == null)
             {
                 // Log the error
                 _logger.LogError($"Patient with ID {id} not found.");
                 return NotFound($"Patient with ID {id} not found.");
             }
+
+            await _emergencyContactServices.DeleteAllPatientEmergencyContacts(id);
             await _patientServices.RemovePatient(id);
             // log the success
             _logger.LogInformation($"Patient with ID {id} removed successfully.");
@@ -64,7 +81,7 @@ namespace Hospital_Management_System.Controllers
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetPatientById(int id)
         {
-            var patient = _patientServices.GetPatientById(id);
+            var patient = await _patientServices.GetPatientById(id);
             if (patient == null)
             {
                 // Log the error
@@ -77,8 +94,8 @@ namespace Hospital_Management_System.Controllers
             return Ok(patientDto);
         }
 
-        [HttpGet("{name:alpha}")]
-        public async Task<IActionResult> GetPatientByName(string name)
+        [HttpGet("name")]
+        public  IActionResult GetPatientByName([RegularExpression(@"^[A-Za-z ]*$")]string name)
         {
             var patients =  _patientServices.GetPatientByName(name);
             if (patients == null)
@@ -89,7 +106,7 @@ namespace Hospital_Management_System.Controllers
             }
             // log the success
             _logger.LogInformation($"Patient with name {name} retrieved successfully.");
-            var patientDto = _mapper.Map<PatientCreationDto>(patients);
+            var patientDto = _mapper.Map<IEnumerable<PatientCreationDto>>(patients);
             return Ok(patientDto);
         }
 
@@ -110,7 +127,7 @@ namespace Hospital_Management_System.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> UpdatePatient([FromBody] PatientUpdateDto patientDto)
+        public  IActionResult UpdatePatient(PatientUpdateDto patientDto)
         {
             if (patientDto == null)
             {

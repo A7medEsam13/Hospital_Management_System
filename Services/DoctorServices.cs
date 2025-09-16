@@ -1,26 +1,27 @@
 ﻿
 
 using Hospital_Management_System.Repository;
+using Hospital_Management_System.UnitOfWork;
 using Microsoft.AspNetCore.Identity;
 
 namespace Hospital_Management_System.Services
 {
     public class DoctorServices : IDoctorServices
     {
-        private readonly IDoctorRepository _doctorRepository;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly ILogger<DoctorServices> _logger;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public DoctorServices(IDoctorRepository doctorRepository,
-            IMapper mapper,
+        public DoctorServices(IMapper mapper,
             ILogger<DoctorServices> logger,
-            UserManager<ApplicationUser> userManager)
+            UserManager<ApplicationUser> userManager,
+            IUnitOfWork unitOfWork)
         {
-            _doctorRepository = doctorRepository;
             _mapper = mapper;
             _logger = logger;
             _userManager = userManager;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task Add(DoctorCreateDto doctor)
@@ -39,14 +40,14 @@ namespace Hospital_Management_System.Services
                 throw new KeyNotFoundException($"User with username {doctor.UserName} not found.");
             }
             doctorEntity.User = user;
-            await _doctorRepository.Add(doctorEntity);
-            await _doctorRepository.SaveAsync();
+            await _unitOfWork.Doctors.Add(doctorEntity);
+            await _unitOfWork.Complete();
             _logger.LogInformation($"Doctor with SSN: {doctor.SSN} added successfully.");
         }
 
         public async Task<IEnumerable<DoctorDisplayDto>> GetAll()
         {
-            var doctors = await _doctorRepository.GetAll();
+            var doctors = await _unitOfWork.Doctors.GetAll();
             if(doctors == null || !doctors.Any())
             {
                 _logger.LogError("No doctors found in the database.");
@@ -58,7 +59,7 @@ namespace Hospital_Management_System.Services
 
         public async Task<Doctor> GetById(string id)
         {
-            var doctor = await _doctorRepository.GetById(id);
+            var doctor = await _unitOfWork.Doctors.GetById(id);
             if(doctor == null)
             {
                 _logger.LogError($"Doctor with SSN: {id} not found.");
@@ -70,9 +71,9 @@ namespace Hospital_Management_System.Services
 
         public async Task Update(DoctorUpdateDto doctor)
         {
-            var doctorFromDb = await _doctorRepository.GetById(doctor.SSN);
-            _doctorRepository.Update(doctor);
-            await _doctorRepository.SaveAsync();
+            var doctorFromDb = await _unitOfWork.Doctors.GetById(doctor.SSN);
+            _unitOfWork.Doctors.Update(doctor);
+            await _unitOfWork.Complete();
 
             _logger.LogInformation($"Doctor with SSN: {doctor.SSN} updated successfully.");
         }

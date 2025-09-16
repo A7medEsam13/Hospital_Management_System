@@ -18,18 +18,20 @@ namespace Hospital_Management_System.Repository
         }
 
 
-        public IQueryable<Room> GetAllRooms()
-        {
-            var rooms = _context.Rooms
-                .AsNoTracking();
-            return rooms;
-        }
-
-        public IQueryable<Room> GetDepartmentRooms(string departmentName)
+        public List<Room> GetAllRooms()
         {
             var rooms = _context.Rooms
                 .AsNoTracking()
-                .Where(r => r.DepartmentName == departmentName);
+                .ToList();
+            return rooms;
+        }
+
+        public List<Room> GetDepartmentRooms(string departmentName)
+        {
+            var rooms = _context.Rooms
+                .AsNoTracking()
+                .Where(r => r.DepartmentName == departmentName)
+                .ToList();
             return rooms;
         }
 
@@ -45,16 +47,15 @@ namespace Hospital_Management_System.Repository
 
         }
 
-        public async Task<int?> GetRoomIdByPatientId(int patientId)
+        
+
+        public async Task<int> GetRoomIdByPatientId(int patientId)
         {
             var patient = await _context.Patients.FirstOrDefaultAsync(p => p.Id == patientId);
-            return patient.RoomId;
+            return (int)patient.RoomId;
         }
 
-        public async Task SaveAsync()
-        {
-            await _context.SaveChangesAsync();
-        }
+        
 
         public async Task UpdateNumberOfPatients(Room room)
         {

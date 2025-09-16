@@ -6,7 +6,7 @@
         public Task RemovePatient(int patientId);
         public Task<Patient> GetPatientById(int patientId);
         public IEnumerable<Patient> GetPatientsByName(string name);
-        public IQueryable<Patient> GetAllPatients();
+        public List<Patient> GetAllPatients();
         public void Updatepatient(Patient patient);
         public Task SaveAsync();
     }

@@ -6,7 +6,7 @@
         public Task<PrescriptionMedicine> GetPrescriptionMedicine(int prescriptionID, int medicineID);
         public Task UpdatePrescriptionMedicine(PrescriptionMedicine prescriptionMedicine);
         public Task Delete(int prescriptionID, int medicineID);
-        public IQueryable<PrescriptionMedicine> GetMedicinesOfPrescription(int prescriptionID);
+        public List<PrescriptionMedicine> GetMedicinesOfPrescription(int prescriptionID);
         public Task SaveAsync();
     }
 }

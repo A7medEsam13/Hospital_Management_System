@@ -1,5 +1,6 @@
 ﻿
 using Hospital_Management_System.Repository;
+using Hospital_Management_System.UnitOfWork;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 
@@ -7,13 +8,10 @@ namespace Hospital_Management_System.Services
 {
     public class PrescriptionService : IPrescriptionService
     {
-        private readonly IPrescriptionRepository _prescriptionRepository;
-        private readonly IPrescriptionMedicineRepository _prescriptionMedicineRepository;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<PrescriptionService> _logger;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IStuffRepository _stuffRepository;
-
+        private readonly IUnitOfWork _unitOfWork;
 
 
         public PrescriptionService(IPrescriptionRepository prescriptionRepository,
@@ -21,14 +19,13 @@ namespace Hospital_Management_System.Services
             IPrescriptionMedicineRepository prescriptionMedicineRepository,
             UserManager<ApplicationUser> userManager,
             IHttpContextAccessor httpContextAccessor,
-            IStuffRepository stuffRepository)
+            IStuffRepository stuffRepository,
+            IUnitOfWork unitOfWork)
         {
-            _prescriptionRepository = prescriptionRepository;
             _logger = logger;
-            _prescriptionMedicineRepository = prescriptionMedicineRepository;
             _userManager = userManager;
             _httpContextAccessor = httpContextAccessor;
-            _stuffRepository = stuffRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task AddNewMedicine(PrescriptionMedicineCreationDTO dto)
@@ -43,15 +40,15 @@ namespace Hospital_Management_System.Services
             };
 
             _logger.LogInformation("Adding and saving the Medicine {mid} to the Prescription {pid}", dto.MedicineID, dto.PrescriptionID);
-            await _prescriptionMedicineRepository.CreatePrescriptionMedicine(prescriptionMedicine);
-            await _prescriptionRepository.SaveAsync();
+            await _unitOfWork.PrescriptionMedicines.CreatePrescriptionMedicine(prescriptionMedicine);
+            await _unitOfWork.Complete();
         }
 
         public async Task CreateNewPrescription(PrescriptionCreationDto dto)
         {
             _logger.LogInformation("Create and mapping the data to the entity object");
             var userID = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var doctorID = await _stuffRepository.GetStuffSSN(userID);
+            var doctorID = await _unitOfWork.Stuffs.GetStuffSSN(userID);
             var date = DateOnly.FromDateTime(DateTime.Today);
             var prescription = new Prescription()
             {
@@ -60,8 +57,8 @@ namespace Hospital_Management_System.Services
                 Date = date
             };
             _logger.LogInformation("Adding and saving the prescription to the repository");
-            await _prescriptionRepository.CreateNewPrescriptionAsync(prescription);
-            await _prescriptionRepository.SaveAsync();
+            await _unitOfWork.Prescriptions.CreateNewPrescriptionAsync(prescription);
+            await _unitOfWork.Complete();
         }
 
         public async Task DeletePrescriptionAsync(int prescriptionID)
@@ -73,13 +70,13 @@ namespace Hospital_Management_System.Services
             }
 
             _logger.LogInformation("Deleting the prescription with ID {id}", prescriptionID);
-            await _prescriptionRepository.DeletePrescriptionAsync(prescriptionID);
+            await _unitOfWork.Prescriptions.DeletePrescriptionAsync(prescriptionID);
         }
 
         public IEnumerable<PrescriptionDisplayDto> GetAllDoctorPrescriptions(string doctorSSN)
         {
             _logger.LogInformation("Getting Prescriptions of the doctor with ssn {ssn}", doctorSSN);
-            var prescriptions = _prescriptionRepository.GetAllDoctorPrescriptions(doctorSSN);
+            var prescriptions = _unitOfWork.Prescriptions.GetAllDoctorPrescriptions(doctorSSN);
             return prescriptions.Select(p => new PrescriptionDisplayDto()
             {
                 PatientId = p.PatientId,
@@ -91,7 +88,7 @@ namespace Hospital_Management_System.Services
         public IEnumerable<PrescriptionDisplayDto> GetAllPatientPrescriptions(int patientID)
         {
             _logger.LogInformation("Getting all prescriptions of the patient with id {id} from database", patientID);
-            var prescriptions = _prescriptionRepository.GetAllPatientPrescriptions(patientID);
+            var prescriptions = _unitOfWork.Prescriptions.GetAllPatientPrescriptions(patientID);
 
             if (prescriptions == null)
             {
@@ -109,24 +106,38 @@ namespace Hospital_Management_System.Services
 
         public IEnumerable<PrescriptionMedicineDisplayDTO> GetAllPrescriptionMedicines(int prescriptionID)
         {
+            _logger.LogInformation("Getting the medicines of prescription {id}", prescriptionID);
             return GetPrescriptionMedicines(prescriptionID);
         }
 
-        public Task RemoveMedicine(int medicineID)
+        public async Task RemoveMedicine(int medicineID, int prescriptionID)
         {
-            
+            _logger.LogInformation("Deleting the prescription medicine");
+            await _unitOfWork.PrescriptionMedicines.Delete(prescriptionID, medicineID);
         }
 
-        public Task UpdatePrescription(PrescriptionDisplayDto dto)
+        public async Task UpdatePrescription(PrescriptionDisplayDto dto)
         {
+            _logger.LogInformation("Updating all medicines ");
+            foreach(var medicine in dto.Medicines)
+            {
+                var prescriptionMedicine = new PrescriptionMedicine()
+                {
+                    PrescriptionId = medicine.PrescriptionId,
+                    MedicineId = medicine.MedicineId,
+                    Dosage = medicine.Dosage,
+                    Duration = medicine.Duration
+                };
 
+                await _unitOfWork.PrescriptionMedicines.UpdatePrescriptionMedicine(prescriptionMedicine);
+            }
         }
 
 
         //////////////////////////////////////////////////////
         private List<PrescriptionMedicineDisplayDTO> GetPrescriptionMedicines(int prescriptionID)
         {
-            var medicines = _prescriptionMedicineRepository.GetMedicinesOfPrescription(prescriptionID);
+            var medicines = _unitOfWork.PrescriptionMedicines.GetMedicinesOfPrescription(prescriptionID);
             return medicines.Select(m => new PrescriptionMedicineDisplayDTO()
             {
                 Dosage = m.Dosage,

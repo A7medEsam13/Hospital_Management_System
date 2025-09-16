@@ -22,26 +22,37 @@ namespace Hospital_Management_System.Repository
                 .ExecuteDeleteAsync();
         }
 
-        public IQueryable<Prescription> GetAllDoctorPrescriptions(string doctorSSN)
+        public List<Prescription> GetAllDoctorPrescriptions(string doctorSSN)
         {
             var prescriptions = _context.Prescriptions
                 .AsNoTracking()
-                .Where(p => p.DoctorId == doctorSSN);
+                .Where(p => p.DoctorId == doctorSSN)
+                .ToList();
             return prescriptions;
         }
 
-        public IQueryable<Prescription> GetAllPatientPrescriptions(int patientID)
+        public List<Prescription> GetAllPatientPrescriptions(int patientID)
         {
             return _context.Prescriptions
                 .AsNoTracking()
-                .Where(p => p.PatientId == patientID);
+                .Where(p => p.PatientId == patientID)
+                .ToList();
         }
 
-        public async Task SaveAsync()
+        public async Task<List<Prescription>> GetUnPaidPrescriptions(int patientID)
         {
-            await _context.SaveChangesAsync();
+            return await _context.Prescriptions
+                .AsNoTracking()
+                .Where(p => !p.IsPaid)
+                .ToListAsync();
         }
 
-        
+        public async Task Pay(Prescription prescription)
+        {
+            await _context.Prescriptions
+                .Where(p => p.Id == prescription.Id)
+                .ExecuteUpdateAsync(s => s
+                .SetProperty(o => o.IsPaid, n => true));
+        }
     }
 }

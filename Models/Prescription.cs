@@ -10,6 +10,11 @@ namespace Hospital_Management_System.Models
         public DateOnly Date { get; set; }
         [ForeignKey("Doctor")]
         public string DoctorId { get; set; } // Foreign key to Doctor
+        public bool IsPaid { get; set; } = false;
+
+
+        public int BillID { get; set; }
+        public Bill Bill { get; set; }
 
 
         // Navigation properties

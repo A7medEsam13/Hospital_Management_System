@@ -16,10 +16,8 @@
         [ForeignKey("Room")]
         public int? RoomId { get; set; } 
 
-        // Navigation property for MedicalHistory
-        public ICollection<MedicalHistory> MedicalHistory { get; set; }
+        // Navigation Preperties
         public ICollection<Prescription> Prescriptions { get; set; }
-        public ICollection<Insurance> insurances { get; set; }
         public ICollection<Bill> Bills { get; set; }    
         public ICollection<DiagnosisPatient> DiagnosisPatient { get; set; }   
         public ICollection<Doctor> Doctors { get; set; }

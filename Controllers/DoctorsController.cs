@@ -12,6 +12,7 @@ namespace Hospital_Management_System.Controllers
     /// Diagnosis Cases
     /// Writing Prescriptions
     /// </summary>
+    [Authorize("Admin")]
     [Route("api/[controller]")]
     [ApiController]
     public class DoctorsController : ControllerBase

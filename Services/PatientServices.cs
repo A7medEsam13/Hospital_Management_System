@@ -1,5 +1,6 @@
 ﻿using Hospital_Management_System.Models;
 using Hospital_Management_System.Repository;
+using Hospital_Management_System.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 
@@ -7,33 +8,33 @@ namespace Hospital_Management_System.Services
 {
     public class PatientServices : IPatientServices
     {
-        private readonly IPatientRepository _patientRepository;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
-        public PatientServices(IPatientRepository patientRepository,
-            IMapper mapper)
+        public PatientServices(IMapper mapper,
+            IUnitOfWork unitOfWork)
         {
-            _patientRepository = patientRepository;
             _mapper = mapper;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task AddPatient(PatientCreationDto patientDto)
         {
             var patient = _mapper.Map<Patient>(patientDto);
-            await _patientRepository.AddPatient(patient);
-            await _patientRepository.SaveAsync();
+            await _unitOfWork.Patients.AddPatient(patient);
+            await _unitOfWork.Complete();
         }
 
         
 
         public  IEnumerable<Patient> GetAllPatients()
         {
-            return _patientRepository.GetAllPatients().AsEnumerable();
+            return _unitOfWork.Patients.GetAllPatients().AsEnumerable();
         }
 
         public async Task<Patient> GetPatientById(int patientId)
         {
-            var patient = await _patientRepository.GetPatientById(patientId);
+            var patient = await _unitOfWork.Patients.GetPatientById(patientId);
             if (patient == null)
             {
                 throw new KeyNotFoundException($"Patient with ID {patientId} not found.");
@@ -44,38 +45,31 @@ namespace Hospital_Management_System.Services
         public  IEnumerable<Patient> GetPatientByName(string name)
         {
             name =name.ToLower();
-            return  _patientRepository.GetPatientsByName(name);
+            return _unitOfWork.Patients.GetPatientsByName(name);
         }
 
         public async Task<string> GetPatientFullName(int id)
         {
-            var patient = await _patientRepository.GetPatientById(id);
+            var patient = await _unitOfWork.Patients.GetPatientById(id);
             return patient.FirstName + " " + patient.LastName;
         }
 
         public async Task RemovePatient(int patientId)
         {
-            await _patientRepository.RemovePatient(patientId);
-            await _patientRepository.SaveAsync();
+            await _unitOfWork.Patients.RemovePatient(patientId);
+            await _unitOfWork.Complete();
 
         }
 
-        public async Task Updatepatient(Patient patient)
+        public async Task Updatepatient(PatientUpdateDto dto)
         {
-            _patientRepository.Updatepatient(patient);
-            await _patientRepository.SaveAsync(); // Ensure the save operation completes
+            var patient = _mapper.Map<Patient>(dto);
+            _unitOfWork.Patients.Updatepatient(patient);
+            await _unitOfWork.Complete();// Ensure the save operation completes
         }
-
-        public Task Updatepatient(PatientUpdateDto patient)
-        {
-            throw new NotImplementedException();
-        }
-
-        
-
         IEnumerable<Patient> IPatientServices.GetPatientByName(string name)
         {
-            return _patientRepository.GetPatientsByName(name);
+            return _unitOfWork.Patients.GetPatientsByName(name);
         }
     }
 }

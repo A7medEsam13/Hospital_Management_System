@@ -1,27 +1,25 @@
 ﻿
 using Hospital_Management_System.Repository;
+using Hospital_Management_System.UnitOfWork;
 using System.Threading.Tasks;
 
 namespace Hospital_Management_System.Services
 {
     public class DiagnosisServices : IDiagnosisServices
     {
-        private readonly IDiagnosisRepository _diagnosisRepository;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<DiagnosisServices> _logger;
         private readonly IMapper _mapper;
-        private readonly IDiagnosisPatientRepository _diagnosisPatientRepository;
         private readonly IPatientServices _patientServices;
 
-        public DiagnosisServices(IDiagnosisRepository diagnosisRepository,
-            ILogger<DiagnosisServices> logger,
+        public DiagnosisServices(ILogger<DiagnosisServices> logger,
             IMapper mapper,
-            IDiagnosisPatientRepository diagnosisPatientRepository,
+            IUnitOfWork unitOfWork,
             IPatientServices patientServices)
         {
-            _diagnosisRepository = diagnosisRepository;
             _logger = logger;
             _mapper = mapper;
-            _diagnosisPatientRepository = diagnosisPatientRepository;
+            _unitOfWork = unitOfWork;
             _patientServices = patientServices;
         }
 
@@ -30,38 +28,38 @@ namespace Hospital_Management_System.Services
             _logger.LogInformation("Mapping the diagnosis dto");
             var diagnosis = _mapper.Map<Diagnosis>(diagnosisDto);
             _logger.LogInformation("Adding the diagnosis to the repository");
-            await _diagnosisRepository.AddAsync(diagnosis);
-            await _diagnosisRepository.SaveAsync();
-            var diagnosisFromDB = await _diagnosisRepository.GetAll()
-                .FirstOrDefaultAsync(d => d.Name == diagnosisDto.Name && d.DoctorSSN == diagnosisDto.DoctorSSN);
+            await _unitOfWork.Diagnoses.AddAsync(diagnosis);
+            await _unitOfWork.Complete();
+            var diagnosisFromDB =  _unitOfWork.Diagnoses.GetAll()
+                .FirstOrDefault(d => d.Name == diagnosisDto.Name && d.DoctorSSN == diagnosisDto.DoctorSSN);
             var diagnosisPatient = new DiagnosisPatient
             {
                 DiagnosisId = diagnosisFromDB.Id,
                 PatientId = diagnosisDto.PatientId
             };
             _logger.LogInformation("Adding the diagnosis patient to the repository");
-            await _diagnosisPatientRepository.AddAsync(diagnosisPatient);
-            await _diagnosisPatientRepository.SaveAsync();
+            await _unitOfWork.DiagnosisPatient.AddAsync(diagnosisPatient);
+            await _unitOfWork.Complete();
         }
 
         public async Task DeleteAsync(int id)
         {
             _logger.LogInformation("Getting the diagnosis by id from database");
-            var diagnosis = await _diagnosisRepository.GetByIdAsync(id);
+            var diagnosis = await _unitOfWork.Diagnoses.GetByIdAsync(id);
             if(diagnosis == null)
             {
                 _logger.LogError("Diagnosis with id {Id} not found", id);
                 throw new KeyNotFoundException($"Diagnosis with id {id} not found.");
             }
             _logger.LogInformation("Deleting the diagnosis from the repository");
-            await _diagnosisRepository.DeleteAsync(diagnosis);
+            await _unitOfWork.Diagnoses.DeleteAsync(diagnosis);
             _logger.LogInformation("Diagnosis Deleted successfully");
         }
 
         public async Task<IEnumerable<DiagnosisDisplayDto>> GetAll()
         {
             _logger.LogInformation("Retrieving all diagnoses from the repository");
-            var diagnoses = _diagnosisRepository.GetAll().AsEnumerable();
+            var diagnoses = _unitOfWork.Diagnoses.GetAll().AsEnumerable();
             if (diagnoses == null)
             {
                 _logger.LogWarning("No diagnoses found in the repository");
@@ -76,15 +74,15 @@ namespace Hospital_Management_System.Services
                     Details = d.Details,
                     DoctorSSN = d.DoctorSSN,
                     DoctorName = d.Doctor.FirstName + " " + d.Doctor.LastName,
-                    patientId = _diagnosisPatientRepository.GetByDiagnosisId(d.Id).PatientId,
-                    PatientName = await _patientServices.GetPatientFullName(_diagnosisPatientRepository.GetByDiagnosisId(d.Id).PatientId)
+                    patientId = _unitOfWork.DiagnosisPatient.GetByDiagnosisId(d.Id).PatientId,
+                    PatientName = await _patientServices.GetPatientFullName(_unitOfWork.DiagnosisPatient.GetByDiagnosisId(d.Id).PatientId)
                 }));
         }
 
         public IEnumerable<DiagnosisDisplayDto> GetAllDoctorDiagnosis(string doctorSSN)
         {
             _logger.LogInformation("Retrieving all diagnoses for doctor with SSN {DoctorSSN}", doctorSSN);
-            var diagnoses = _diagnosisRepository.GetAllDoctorDiagnosis(doctorSSN);
+            var diagnoses = _unitOfWork.Diagnoses.GetAllDoctorDiagnosis(doctorSSN);
             if (diagnoses == null || !diagnoses.Any())
             {
                 _logger.LogWarning("No diagnoses found for doctor with SSN {DoctorSSN}", doctorSSN);
@@ -114,7 +112,7 @@ namespace Hospital_Management_System.Services
                 throw new ArgumentException("Patient ID must be greater than zero.", nameof(patientId));
             }
             _logger.LogInformation("Retrieving all diagnoses for patient with ID {PatientId}", patientId);
-            var diagnoses = _diagnosisRepository.GetAllPatientDiagnosis(patientId);
+            var diagnoses = _unitOfWork.Diagnoses.GetAllPatientDiagnosis(patientId);
             if(diagnoses == null || !diagnoses.Any())
             {
                 _logger.LogWarning("No diagnoses found for patient with ID {PatientId}", patientId);
@@ -142,7 +140,7 @@ namespace Hospital_Management_System.Services
                 throw new ArgumentException("Diagnosis ID must be greater than zero.", nameof(id));
             }
             _logger.LogInformation("Retrieving diagnosis by ID: {Id}", id);
-            var diagnosis = await _diagnosisRepository.GetByIdAsync(id);
+            var diagnosis = await _unitOfWork.Diagnoses.GetByIdAsync(id);
 
             if (diagnosis == null)
             {
@@ -164,7 +162,7 @@ namespace Hospital_Management_System.Services
 
         public async Task UpdateAsync(int id, DiagnosisUpdateDto diagnosis)
         {
-            var existingDiagnosis = await _diagnosisRepository.GetByIdAsync(id);
+            var existingDiagnosis = await _unitOfWork.Diagnoses.GetByIdAsync(id);
             if(existingDiagnosis == null)
             {
                 _logger.LogError("Diagnosis with id {Id} not found", id);
@@ -175,8 +173,8 @@ namespace Hospital_Management_System.Services
             existingDiagnosis.Details = diagnosis.Details;
 
             _logger.LogInformation("Updating the diagnosis with id {Id}", id);
-            await _diagnosisRepository.UpdateAsync(existingDiagnosis);
-            await _diagnosisRepository.SaveAsync();
+            await _unitOfWork.Diagnoses.UpdateAsync(existingDiagnosis);
+            await _unitOfWork.Complete();
             _logger.LogInformation("Diagnosis with id {Id} updated successfully", id);
         }
     }

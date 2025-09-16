@@ -24,12 +24,13 @@ namespace Hospital_Management_System.Repository
                 .ExecuteDeleteAsync();
         }
 
-        public IQueryable<PrescriptionMedicine> GetMedicinesOfPrescription(int prescriptionID)
+        public List<PrescriptionMedicine> GetMedicinesOfPrescription(int prescriptionID)
         {
             return _context.PrescriptionMedicines
                 .AsNoTracking()
                 .Where(pm => pm.PrescriptionId == prescriptionID)
-                .Include(pm => pm.Medicine);
+                .Include(pm => pm.Medicine)
+                .ToList();
         }
 
         public async Task<PrescriptionMedicine> GetPrescriptionMedicine(int prescriptionID, int medicineID)
