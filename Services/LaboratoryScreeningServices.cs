@@ -1,4 +1,5 @@
 ﻿
+using Hospital_Management_System.Extensions;
 using Hospital_Management_System.Repository;
 using Hospital_Management_System.UnitOfWork;
 using Microsoft.AspNetCore.Identity;
@@ -24,16 +25,27 @@ namespace Hospital_Management_System.Services
                 _logger.LogInformation("Model is invalid");
                 throw new ArgumentNullException();
             }
+
+            _logger.LogInformation("Checking if the docotor with ssn {ssn} is ternibated", dto.DoctorId);
+            var doctor = await _unitOfWork.Stuffs.GetById(dto.DoctorId);
+
+            if(doctor.IsTerminated)
+            {
+                _logger.LogWarning("the doctor with ssn {ssn} has been terminated", dto.DoctorId);
+                throw new InvalidDataException("this doctor is not exist");
+            }
+
+            
             _logger.LogInformation("Mapping the dto to entity");
             var screeningEntity = _mapper.Map<LaboratoryScreening>(dto);
 
-            var userID = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if(userID is null)
-            {
-                _logger.LogError("ther is no stuff exists");
-                throw new Exception("ther is no stuff exists");
-            }
-            var stuff = await _unitOfWork.Stuffs.GetStuffByUserID(userID);
+            //var userID = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            //if(userID is null)
+            //{
+            //    _logger.LogError("ther is no stuff exists");
+            //    throw new Exception("ther is no stuff exists");
+            //}
+            var stuff = await GetData.GetCurrentUserDataAsync(_httpContextAccessor, _unitOfWork);
             screeningEntity.TechnicianSSN = stuff.SSN;
 
             _logger.LogInformation("Creating the new screening And saving it to database");

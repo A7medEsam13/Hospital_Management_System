@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Hospital_Management_System.Controllers
 {
-    [Authorize("Docotor")]
+    [Authorize(Roles = "Doctor")]
     [Route("api/[controller]")]
     [ApiController]
     public class DiagnosisController : ControllerBase
@@ -22,10 +22,10 @@ namespace Hospital_Management_System.Controllers
 
 
         [HttpGet]
-        public  IActionResult GetAllDiagnosis()
+        public  async Task<IActionResult> GetAllDiagnosis()
         {
             _logger.LogInformation("Retrieving all diagnoses");
-            var diagnoses = _diagnosisServices.GetAll();
+            var diagnoses = await _diagnosisServices.GetAll();
             if (diagnoses == null)
             {
                 _logger.LogWarning("No diagnoses found");

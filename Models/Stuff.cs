@@ -22,7 +22,6 @@ namespace Hospital_Management_System.Models
 
         // Navigation properties
         public ApplicationUser User { get; set; }
-        public ICollection<Payroll> Payrolls { get; set; }
         public ICollection<LaboratoryScreening>? LaboratoryScreenings { get; set; }
     }
 }

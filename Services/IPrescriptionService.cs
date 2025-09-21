@@ -6,8 +6,8 @@
         public IEnumerable<PrescriptionDisplayDto> GetAllPatientPrescriptions(int patientID);
         public Task DeletePrescriptionAsync(int prescriptionID);
         public IEnumerable<PrescriptionDisplayDto> GetAllDoctorPrescriptions(string doctorSSN);
-        public IEnumerable<PrescriptionMedicineDisplayDTO> GetAllPrescriptionMedicines(int prescriptionID); 
-        public Task UpdatePrescription(PrescriptionDisplayDto dto);
+        public IEnumerable<PrescriptionMedicineDisplayDTO> GetAllPrescriptionMedicines(int prescriptionID);
+        public Task UpdatePrescription(int prescriptionID, int medicineID, string? newDosage, string? newDuration);
         public Task AddNewMedicine(PrescriptionMedicineCreationDTO dto);
         public Task RemoveMedicine(int medicineID,int prescriptionID);
     }

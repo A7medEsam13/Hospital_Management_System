@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Hospital_Management_System.Controllers
 {
-    [Authorize("Receptionest")]
+    [Authorize(Roles ="Receptionest,Admin")]
     [Route("api/[controller]")]
     [ApiController]
     public class AppointmentsController : ControllerBase
@@ -40,7 +40,7 @@ namespace Hospital_Management_System.Controllers
         [HttpPost]
         public async Task<IActionResult> BookAppointment(AppointmentCreationDto appointmentDto)
         {
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 _logger.LogError("Model state is invalid for booking an appointment.");
                 return BadRequest(ModelState);
@@ -81,7 +81,7 @@ namespace Hospital_Management_System.Controllers
         }
 
         // getting appointment by id
-        [HttpGet("{id:int}")]
+        [HttpGet("id/{id:int}")]
         public async Task<IActionResult> GetAppointmentById(int id)
         {
             // Logic to get an appointment by id
@@ -98,7 +98,7 @@ namespace Hospital_Management_System.Controllers
 
         // get appointments by date
         [HttpGet]
-        public async Task<IActionResult> GetAppointmentsByDate([FromBody] DateOnly date)
+        public async Task<IActionResult> GetAppointmentsByDate(DateOnly date)
         {
             // Logic to get appointments by date
             var appointments = await _appointmentServices.GetAppointmentsByDate(date);
@@ -128,7 +128,7 @@ namespace Hospital_Management_System.Controllers
         }
 
         // get appointments by doctor id
-        [HttpGet("{doctorId:alpha}")]
+        [HttpGet("doctor")]
         public async Task<IActionResult> GetAppointmentsByDoctorId(string doctorId)
         {
             // Logic to get appointments by doctor id

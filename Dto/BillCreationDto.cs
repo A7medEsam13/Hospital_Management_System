@@ -2,7 +2,7 @@
 {
     public class BillCreationDto
     {
-        public DateOnly Date { get; set; }
+
         public int PatientID { get; set; }
     }
 }

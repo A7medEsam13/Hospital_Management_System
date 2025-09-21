@@ -21,10 +21,10 @@ namespace Hospital_Management_System.Repository
             return diagnosisPatient;
         }
 
-        public async Task SaveAsync()
+        public async Task<int> GetPatientID(int diagnosisID)
         {
-            await _context.SaveChangesAsync();
-
+            var diagnosisPatient = await _context.DiagnosisPatient.FirstOrDefaultAsync(dp => dp.DiagnosisId == diagnosisID);
+            return diagnosisPatient.PatientId;
         }
     }
 }

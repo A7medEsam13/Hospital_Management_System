@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Hospital_Management_System.Controllers
 {
-    [Authorize("Receptionest,Admin")]
+    [Authorize(Roles = "Admin,Receptionest")]
     [Route("api/[controller]")]
     [ApiController]
     public class RoomsController : ControllerBase
@@ -91,7 +91,7 @@ namespace Hospital_Management_System.Controllers
             return Ok(rooms);
         }
 
-        [HttpGet("{roomId:int}")]
+        [HttpGet("roompatients")]
         public IActionResult GetRoomPatients(int roomID)
         {
             if (roomID <= 0)

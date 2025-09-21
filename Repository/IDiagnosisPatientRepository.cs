@@ -4,6 +4,6 @@
     {
         public Task AddAsync(DiagnosisPatient diagnosisPatient);
         public DiagnosisPatient GetByDiagnosisId(int diagnosisId);
-        public Task SaveAsync();
+        public Task<int> GetPatientID(int diagnosisID);
     }
 }

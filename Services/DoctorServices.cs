@@ -33,13 +33,8 @@ namespace Hospital_Management_System.Services
             }
             var doctorEntity = _mapper.Map<Doctor>(doctor);
 
-            var user = await _userManager.FindByNameAsync(doctor.UserName);
-            if (user == null)
-            {
-                _logger.LogError("User with username {UserName} not found.", doctor.UserName);
-                throw new KeyNotFoundException($"User with username {doctor.UserName} not found.");
-            }
-            doctorEntity.User = user;
+            doctorEntity.Role = "Doctor";
+            
             await _unitOfWork.Doctors.Add(doctorEntity);
             await _unitOfWork.Complete();
             _logger.LogInformation($"Doctor with SSN: {doctor.SSN} added successfully.");
@@ -53,11 +48,13 @@ namespace Hospital_Management_System.Services
                 _logger.LogError("No doctors found in the database.");
                 return Enumerable.Empty<DoctorDisplayDto>();
             }
+
+            var doctorsDto = _mapper.Map<IEnumerable<DoctorDisplayDto>>(doctors);
             _logger.LogInformation("Retrieved all doctors successfully.");
-            return doctors;
+            return doctorsDto;
         }
 
-        public async Task<Doctor> GetById(string id)
+        public async Task<DoctorDisplayDto> GetById(string id)
         {
             var doctor = await _unitOfWork.Doctors.GetById(id);
             if(doctor == null)
@@ -66,16 +63,39 @@ namespace Hospital_Management_System.Services
                 throw new KeyNotFoundException($"Doctor with SSN: {id} not found.");
             }
             _logger.LogInformation($"Doctor with SSN: {id} retrieved successfully.");
-            return doctor;
+            var doctorDto = _mapper.Map<DoctorDisplayDto>(doctor);
+            return doctorDto;
         }
 
-        public async Task Update(DoctorUpdateDto doctor)
+        public async Task Update(DoctorUpdateDto dto)
         {
-            var doctorFromDb = await _unitOfWork.Doctors.GetById(doctor.SSN);
-            _unitOfWork.Doctors.Update(doctor);
+            var doctor = await _unitOfWork.Doctors.GetById(dto.SSN);
+
+            if (dto.Address != "string" && !string.IsNullOrEmpty(dto.Address))
+            {
+                doctor.Address = dto.Address;
+            }
+            if (dto.DepartmentName != "string" && !string.IsNullOrEmpty(dto.DepartmentName))
+            {
+                doctor.DepartmentName = dto.DepartmentName;
+            }
+
+            if (dto.Qualification != "string" && !string.IsNullOrEmpty(dto.Qualification))
+            {
+                doctor.Qualification = dto.Qualification;
+            }
+
+            if (dto.Specialization != "string" && !string.IsNullOrEmpty(dto.Specialization))
+            {
+                doctor.Specialization = dto.Specialization;
+            }
+
+            await _unitOfWork.Doctors.Update(doctor);
             await _unitOfWork.Complete();
 
             _logger.LogInformation($"Doctor with SSN: {doctor.SSN} updated successfully.");
         }
+
+        
     }
 }

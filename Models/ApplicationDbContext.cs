@@ -91,11 +91,6 @@ namespace Hospital_Management_System.Models
 
 
             #region Stuff Relations
-            // the relation between stuff and payroll.
-            modelBuilder.Entity<Stuff>()
-                .HasMany(s => s.Payrolls)
-                .WithOne(p => p.Staff)
-                .HasForeignKey(p => p.StaffSSN);
 
             // the relation between stuff technician and laboratory screenings.
             modelBuilder.Entity<Stuff>()
@@ -175,7 +170,6 @@ namespace Hospital_Management_System.Models
         public DbSet<DiagnosisPatient> DiagnosisPatient { get; set; }
         public DbSet<Diagnosis> Diagnoses { get; set; }
         public DbSet<Stuff> Staffs { get; set; }
-        public DbSet<Payroll> Payrolls { get; set; }
         public DbSet<Patient> Patients { get; set; }
         public DbSet<Appointment> Appointments { get; set; }
         public DbSet<Prescription> Prescriptions { get; set; }

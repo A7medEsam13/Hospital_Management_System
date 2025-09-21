@@ -18,6 +18,7 @@ namespace Hospital_Management_System.Repository
         public async Task<IEnumerable<Stuff>> GetAll()
         {
             var staffs = await _context.Staffs
+                .AsNoTracking()
                 .Where(s=>!s.IsTerminated)
                 .ToListAsync();
             return staffs;

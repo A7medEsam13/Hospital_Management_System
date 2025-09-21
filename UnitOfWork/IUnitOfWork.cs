@@ -15,7 +15,6 @@ namespace Hospital_Management_System.UnitOfWork
         IPrescriptionRepository Prescriptions { get; }
         IRoomRepository Rooms { get;  }
         IStuffRepository Stuffs { get;  }
-        IPayrollRepository Payrolls { get; }
         IMedicineRepository Medicines { get; }
         IBillRepository Bills { get; }
 

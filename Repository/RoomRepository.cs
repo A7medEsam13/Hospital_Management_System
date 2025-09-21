@@ -37,7 +37,8 @@ namespace Hospital_Management_System.Repository
 
         public async Task<Room> GetRoomByID(int roomID)
         {
-            return await _context.Rooms.FindAsync(roomID);
+            return await _context.Rooms
+                .FindAsync(roomID);
         }
 
         public async Task<decimal> GetRoomCost(int roomId)

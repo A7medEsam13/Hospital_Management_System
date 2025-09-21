@@ -21,26 +21,42 @@ namespace Hospital_Management_System.Services
                 _logger.LogError("Invalid Model");
                 throw new Exception("Invalid Model");
             }
+            var patientBills = await _unitOfWork.Bills.GetAllPatientBills(dto.PatientID);
+            if (patientBills.Any(b => !b.IsPaid))
+            {
+                _logger.LogWarning("Can not create a new bill while is not paied bill exists");
+                throw new Exception("there is unpaid bill");
+            }
             _logger.LogInformation("mapping the dto to entity");
             var billEntity = _mapper.Map<Bill>(dto);
+            billEntity.Date = DateOnly.FromDateTime(DateTime.Now);
 
-            _logger.LogInformation("Getting and adding room cost of patient {id}", billEntity.PatientId);
-            var roomID = await _unitOfWork.Rooms.GetRoomIdByPatientId(billEntity.PatientId);
-            billEntity.RoomCost = await _unitOfWork.Rooms.GetRoomCost(roomID);
-
-
-            _logger.LogInformation("Getting and adding Screenigs cost of patient {id}", billEntity.PatientId);
-            var screenings = await _unitOfWork.LaboratoryScreenings.GetAllPatientScreenings(billEntity.PatientId);
-            var screeningsCost = screenings.Select(s => s.TestCost);
-            foreach(var cost in screeningsCost)
+            var patient = await _unitOfWork.Patients.GetPatientById(billEntity.PatientId);
+            if(!patient.IsRoomPaied)
             {
-                billEntity.TestCost += cost;
+
+                _logger.LogInformation("Getting and adding room cost of patient {id}", billEntity.PatientId);
+                var roomID = await _unitOfWork.Rooms.GetRoomIdByPatientId(billEntity.PatientId);
+                billEntity.RoomId = roomID;
+                billEntity.RoomCost = await _unitOfWork.Rooms.GetRoomCost(roomID);
+
             }
+
+            _logger.LogInformation("Adding the bill entity to database");
+            await _unitOfWork.Bills.CreateNewBill(billEntity);
+            await _unitOfWork.Complete();
+
+            //_logger.LogInformation("Getting and adding Screenigs cost of patient {id}", billEntity.PatientId);
+            //var screenings = await _unitOfWork.LaboratoryScreenings.GetAllPatientScreenings(billEntity.PatientId);
+            //var screeningsCost = screenings.Select(s => s.TestCost);
+            //foreach(var cost in screeningsCost)
+            //{
+            //    billEntity.TestCost += cost;
+            //}
 
 
             _logger.LogInformation("Getting and adding medicines cost of patient {id}", billEntity.PatientId);
             var UnPaidPrescriptions = await _unitOfWork.Prescriptions.GetUnPaidPrescriptions(billEntity.PatientId);
-
             foreach(var prescription in UnPaidPrescriptions)
             {
                 var prescriptionMedicines = _unitOfWork.PrescriptionMedicines.GetMedicinesOfPrescription(prescription.Id);
@@ -48,14 +64,18 @@ namespace Hospital_Management_System.Services
                 {
                     billEntity.MedicineCost += presscriptionMedicine.Medicine.Cost;
                 }
+                var prescriptionScreenings = await _unitOfWork.Prescriptions.GetAllPrescriptionScreenings(prescription.Id);
+                foreach(var screening in prescriptionScreenings)
+                {
+                    billEntity.TestCost += screening.LaboratoryScreening.TestCost;
+                }
 
             }
 
             _logger.LogInformation("calculate the total amount");
             billEntity.Total = billEntity.RoomCost + billEntity.TestCost + billEntity.MedicineCost;
 
-            _logger.LogInformation("Adding the bill entity to database");
-            await _unitOfWork.Bills.CreateNewBill(billEntity);
+            billEntity.Prescriptions = UnPaidPrescriptions;
             await _unitOfWork.Complete();
         }
 
@@ -99,29 +119,21 @@ namespace Hospital_Management_System.Services
             return dto;
         }
 
-        public async Task UpdateBill(BillDisplayDto dto)
-        {
-            if(dto is null)
-            {
-                _logger.LogError("Invalid model");
-                throw new Exception("Invalid model");
-            }
-
-            var billEntity = await _unitOfWork.Bills.GetByID(dto.ID);
-            billEntity = _mapper.Map<Bill>(dto);
-            await _unitOfWork.Bills.UpdateBill(billEntity);
-        }
+        
 
         public async Task<bool> PayBill(int billID)
         {
             var bill = await _unitOfWork.Bills.GetByID(billID);
             bill.IsPaid = true;
-            await _unitOfWork.Bills.UpdateBill(bill);
+            await _unitOfWork.Bills.Pay(billID);
             foreach(var prescription in bill.Prescriptions)
             {
                 prescription.IsPaid = true;
                 await _unitOfWork.Prescriptions.Pay(prescription);
             }
+            var patient = await _unitOfWork.Patients.GetPatientById(bill.PatientId);
+            patient.IsRoomPaied = true;
+            await _unitOfWork.Complete();
 
             var paidBill = await _unitOfWork.Bills.GetByID(billID);
             return paidBill.IsPaid;

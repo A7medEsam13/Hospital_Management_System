@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Hospital_Management_System.Controllers
 {
-    [Authorize("Admin,Receptionest")]
+    [Authorize(Roles = "Admin,Receptionest")]
     [Route("api/[controller]")]
     [ApiController]
     public class EmergencyContactsController : ControllerBase

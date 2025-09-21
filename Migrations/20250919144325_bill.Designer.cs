@@ -4,6 +4,7 @@ using Hospital_Management_System.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Hospital_Management_System.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250919144325_bill")]
+    partial class bill
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -372,9 +375,6 @@ namespace Hospital_Management_System.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(1)");
 
-                    b.Property<bool>("IsRoomPaied")
-                        .HasColumnType("bit");
-
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -395,6 +395,40 @@ namespace Hospital_Management_System.Migrations
                     b.HasIndex("RoomId");
 
                     b.ToTable("Patients");
+                });
+
+            modelBuilder.Entity("Hospital_Management_System.Models.Payroll", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.PrimitiveCollection<string>("DrawTimes")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("IBAN")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("Salary")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("StaffSSN")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.PrimitiveCollection<string>("UpdatedDate")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StaffSSN");
+
+                    b.ToTable("Payrolls");
                 });
 
             modelBuilder.Entity("Hospital_Management_System.Models.Prescription", b =>
@@ -835,6 +869,17 @@ namespace Hospital_Management_System.Migrations
                     b.Navigation("Room");
                 });
 
+            modelBuilder.Entity("Hospital_Management_System.Models.Payroll", b =>
+                {
+                    b.HasOne("Hospital_Management_System.Models.Stuff", "Staff")
+                        .WithMany("Payrolls")
+                        .HasForeignKey("StaffSSN")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Staff");
+                });
+
             modelBuilder.Entity("Hospital_Management_System.Models.Prescription", b =>
                 {
                     b.HasOne("Hospital_Management_System.Models.Bill", "Bill")
@@ -1002,6 +1047,8 @@ namespace Hospital_Management_System.Migrations
             modelBuilder.Entity("Hospital_Management_System.Models.Stuff", b =>
                 {
                     b.Navigation("LaboratoryScreenings");
+
+                    b.Navigation("Payrolls");
                 });
 
             modelBuilder.Entity("Hospital_Management_System.Models.Doctor", b =>

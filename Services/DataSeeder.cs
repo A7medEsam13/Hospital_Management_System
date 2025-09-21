@@ -17,6 +17,27 @@ namespace Hospital_Management_System.Services
             string adminPass = "Admin@123";
 
             var adminUser = await userManager.FindByEmailAsync(adminEmail);
+
+            if(!await roleManager.RoleExistsAsync("Admin"))
+            {
+                await roleManager.CreateAsync(new IdentityRole { Name = "Admin" });
+            }
+
+            if(!await roleManager.RoleExistsAsync("Doctor"))
+            {
+                await roleManager.CreateAsync(new IdentityRole { Name = "Doctor" });
+            }
+
+            if(!await roleManager.RoleExistsAsync("Receptionest"))
+            {
+                await roleManager.CreateAsync(new IdentityRole { Name = "Receptionest" });
+            }
+
+            if(!await roleManager.RoleExistsAsync("Technican"))
+            {
+                await roleManager.CreateAsync(new IdentityRole { Name = "Technican" });
+            }
+
             if(adminUser is null)
             {
                 adminUser = new ApplicationUser
@@ -26,9 +47,17 @@ namespace Hospital_Management_System.Services
                     EmailConfirmed = true,
                     StuffSSN = "30508131401718"
                 };
-
                 var result = await userManager.CreateAsync(adminUser, adminPass);
                 if (result.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(adminUser, "Admin");
+                }
+
+            }
+            else
+            {
+                var roles = await userManager.GetRolesAsync(adminUser);
+                if (!roles.Contains("Admin"))
                 {
                     await userManager.AddToRoleAsync(adminUser, "Admin");
                 }

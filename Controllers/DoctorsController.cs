@@ -7,12 +7,7 @@ using System.Threading.Tasks;
 
 namespace Hospital_Management_System.Controllers
 {
-    /// <summary>
-    /// displaying patients records
-    /// Diagnosis Cases
-    /// Writing Prescriptions
-    /// </summary>
-    [Authorize("Admin")]
+    [Authorize(Roles = "Admin")]
     [Route("api/[controller]")]
     [ApiController]
     public class DoctorsController : ControllerBase
@@ -72,43 +67,35 @@ namespace Hospital_Management_System.Controllers
         }
 
         [HttpGet("by-id")]
-        public  IActionResult GetDoctorById(string id)
+        public  async Task<IActionResult> GetDoctorById(string id)
         {
-            var doctor = _doctorServices.GetById(id);
+            var doctor = await _doctorServices.GetById(id);
             if (doctor == null)
             {
                 _logger.LogWarning("Doctor with ID {DoctorId} not found.", id);
                 return NotFound($"Doctor with ID {id} not found.");
             }
-            var doctorDto = _mapper.Map<DoctorDisplayDto>(doctor);
-            return Ok(doctorDto);
+            return Ok(doctor);
         }
 
         [HttpPut]
-        public IActionResult UpdateDoctor(string id, DoctorUpdateDto dto)
+        public async Task<IActionResult> UpdateDoctor(DoctorUpdateDto dto)
         {
+            if(!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             if (dto == null)
             {
                 _logger.LogError("Doctor data is null.");
                 return BadRequest("Invalid doctor data.");
             }
-            
-            _doctorServices.Update(dto);
-            _logger.LogInformation("Doctor with ID {DoctorId} updated successfully.", id);
+
+            await _doctorServices.Update(dto);
+            _logger.LogInformation("Doctor with ID {DoctorId} updated successfully.", dto.SSN);
             return Ok("Doctor updated successfully.");
         }
 
-        [HttpDelete]
-        public async Task<IActionResult> DeleteDoctor(string id)
-        {
-            var doctor = _doctorServices.GetById(id);
-            if (doctor == null)
-            {
-                _logger.LogError("Doctor with ID {DoctorId} not found.", id);
-                return NotFound($"Doctor with ID {id} not found.");
-            }
-            _logger.LogInformation("Doctor with ID {DoctorId} has been terminated successfully.", id);
-            return Ok("Doctor deleted successfully.");
-        }
+        
     }
 }

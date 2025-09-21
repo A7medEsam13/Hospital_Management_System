@@ -28,7 +28,7 @@ namespace Hospital_Management_System.Repository
 
         public async Task<Medicine> GetByName(string name)
         {
-            return await _context.Medicines.FindAsync(name);
+            return await _context.Medicines.FirstOrDefaultAsync(m => m.Name == name);
         }
 
         public async Task UpdateMedicineCost(int id, decimal newCost)

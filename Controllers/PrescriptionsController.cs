@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Hospital_Management_System.Controllers
 {
-    [Authorize("Docotor")]
+    [Authorize(Roles = "Doctor")]
     [Route("api/[controller]")]
     [ApiController]
     public class PrescriptionsController : ControllerBase
@@ -18,7 +18,7 @@ namespace Hospital_Management_System.Controllers
             _logger = logger;
         }
 
-        [HttpPost("prescription")]
+        [HttpPost("newPrescription")]
         public async Task<IActionResult> CreateNewPrescription(PrescriptionCreationDto dto)
         {
             if (!ModelState.IsValid)
@@ -73,17 +73,17 @@ namespace Hospital_Management_System.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> UpdatePrescription(PrescriptionDisplayDto dto)
+        public async Task<IActionResult> UpdatePrescription(int prescriptionID,int medicineID,string? newDosage,string? newDuration)
         {
-            if (!ModelState.IsValid)
+            if (string.IsNullOrEmpty(newDosage) && string.IsNullOrEmpty(newDuration))
             {
-                _logger.LogError("Invalid Data");
-                return BadRequest(ModelState);
+                _logger.LogError("new dosage and new duration can not be null or empty");
+                return BadRequest("new dosage and new duration can not be null or empty");
             }
 
             _logger.LogInformation("Updating the model");
-            await _prescriptionService.UpdatePrescription(dto);
-            return Ok();
+            await _prescriptionService.UpdatePrescription(prescriptionID, medicineID, newDosage, newDuration);
+            return Ok("Updated");
         }
 
         [HttpPost]

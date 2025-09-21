@@ -6,7 +6,7 @@ namespace Hospital_Management_System.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize("Admin,Receptionest")]
+    [Authorize(Roles = "Admin,Receptionest")]
     public class BillsController(ILogger<BillsController> logger,
         IBillServices billServices) : ControllerBase
     {
@@ -24,7 +24,8 @@ namespace Hospital_Management_System.Controllers
 
             _logger.LogInformation("Creating the new Bill");
             await _billServices.CreateNewBill(dto);
-            return Created();
+            var bill = await _billServices.GetAllPatientBills(dto.PatientID);
+            return Ok(bill);
         }
 
         [HttpPut("pay")]
@@ -49,14 +50,7 @@ namespace Hospital_Management_System.Controllers
             return Ok(bills);
         }
 
-        [HttpPut]
-        public async Task<IActionResult> UpdateBill(BillDisplayDto dto)
-        {
-            _logger.LogInformation("Updating the  bill with ID {id}", dto.ID);
-            await _billServices.UpdateBill(dto);
-
-            return Ok("Updated");
-        }
+        
 
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetByID(int id)

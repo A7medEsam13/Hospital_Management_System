@@ -25,9 +25,9 @@ namespace Hospital_Management_System.Extensions
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<IPrescriptionMedicineRepository, PrescriptionMedicineRepository>();
             services.AddScoped<IPrescriptionRepository, PrescriptionRepository>();
-            services.AddScoped<IPayrollRepository, PayrollRepository>();
-            services.AddScoped<IPayrollServices, PayrollServices>();
+            services.AddScoped<IPrescriptionService, PrescriptionService>();
             services.AddScoped<IMedicineRepository, MedicineRepository>();
+            services.AddScoped<IMedicineServices, MedicineServices>();
             services.AddScoped<ILaboratoryScreeningRepository, LaboratoryScreeningRepository>();
             services.AddScoped<ILaboratoryScreeningServices, LaboratoryScreeningServices>();
             services.AddScoped<IBillServices, BillServices>();

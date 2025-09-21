@@ -4,7 +4,6 @@
     {
         public string Name { get; set; }
         public string Details { get; set; }
-        public string DoctorSSN { get; set; }
         public int PatientId { get; set; }
     }
 }

@@ -5,7 +5,7 @@ using System.Diagnostics.Eventing.Reader;
 
 namespace Hospital_Management_System.Controllers
 {
-    [Authorize("Admin")]
+    [Authorize(Roles = "Admin")]
     [Route("api/[controller]")]
     [ApiController]
     public class MedicinesController(IMedicineServices _medicineServices, 

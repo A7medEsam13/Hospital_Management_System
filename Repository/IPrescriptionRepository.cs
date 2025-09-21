@@ -7,6 +7,7 @@
         public Task DeletePrescriptionAsync(int prescriptionID);
         public List<Prescription> GetAllPatientPrescriptions(int patientID);
         public List<Prescription> GetAllDoctorPrescriptions(string doctorSSN);
-        public Task Pay(Prescription prescription); 
+        public Task Pay(Prescription prescription);
+        public Task<List<LaboratoryScreeningPrescription>> GetAllPrescriptionScreenings(int prescriptionID);
     }
 }

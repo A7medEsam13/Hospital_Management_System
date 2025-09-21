@@ -1,19 +1,18 @@
-﻿namespace Hospital_Management_System.Dto
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Hospital_Management_System.Dto
 {
     public class DoctorUpdateDto
     {
+        [Required(AllowEmptyStrings =false,ErrorMessage ="SSN is required")]
         public string SSN { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public DateOnly JoinDate { get; set; }
-        public string Role { get; set; }
-        public string Email { get; set; }
+        [Required(AllowEmptyStrings =false,ErrorMessage ="Address is required")]
         public string Address { get; set; }
+        [Required(AllowEmptyStrings =false,ErrorMessage ="Department Name is required")]
         public string DepartmentName { get; set; }
-
-
+        [Required(AllowEmptyStrings =false,ErrorMessage ="Qualification is required")]
         public string Qualification { get; set; }
-        public int StaffId { get; set; }
+        [Required(AllowEmptyStrings =false,ErrorMessage ="Specialization is required")]
         public string Specialization { get; set; }
     }
 }

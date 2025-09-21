@@ -8,22 +8,10 @@ using System.ComponentModel.DataAnnotations;
 namespace Hospital_Management_System.Controllers
 {
 
-    /*
-     * {
-  "userName": "aesam4168@gmail.com",
-  "password": "Admin@123"
-}
-     */
+    
 
 
-
-    // 
-    /// <summary>
-    /// book appointments
-    /// following the medical records
-    /// show bills
-    /// </summary>
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,Receptionest")]
     [Route("api/[controller]")]
     [ApiController]
     public class PatientsController : ControllerBase

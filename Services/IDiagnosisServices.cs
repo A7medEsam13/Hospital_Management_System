@@ -7,7 +7,7 @@
         public Task DeleteAsync(int id); //
         public Task<IEnumerable<DiagnosisDisplayDto>> GetAll(); //
         public Task<DiagnosisDisplayDto> GetByIdAsync(int id);
-        public IEnumerable<DiagnosisDisplayDto> GetAllPatientDiagnosis(int patientId);
-        public IEnumerable<DiagnosisDisplayDto> GetAllDoctorDiagnosis(string doctorSSN);
+        public Task<IEnumerable<DiagnosisDisplayDto>> GetAllPatientDiagnosis(int patientId);
+        public IEnumerable<Task<DiagnosisDisplayDto>> GetAllDoctorDiagnosis(string doctorSSN);
     }
 }

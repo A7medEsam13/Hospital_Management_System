@@ -40,6 +40,7 @@ namespace Hospital_Management_System.Repository
                 .ToListAsync();
         }
 
+
         public async Task<LaboratoryScreening> GetByID(int id)
         {
             return await _context.LaboratoryScreenings

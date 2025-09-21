@@ -35,15 +35,12 @@ namespace Hospital_Management_System.Repository
                 .FirstOrDefaultAsync(b => b.Id == id);
         }
 
-        public async Task UpdateBill(Bill bill)
+        public async Task Pay(int billID)
         {
             await _context.Bills
-                .Where(b => b.Id == bill.Id)
+                .Where(b => b.Id == billID)
                 .ExecuteUpdateAsync(s => s
-                .SetProperty(o => o.RoomCost, n => bill.RoomCost)
-                .SetProperty(o => o.TestCost, n => bill.TestCost)
-                .SetProperty(o => o.MedicineCost, n => bill.MedicineCost)
-                .SetProperty(o => o.Total, n => bill.Total));
+                .SetProperty(o => o.IsPaid, n => true));
         }
     }
 }

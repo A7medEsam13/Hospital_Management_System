@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Hospital_Management_System.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Technican")]
     [Route("api/[controller]")]
     [ApiController]
     public class LaboratoryScreeningsController(ILaboratoryScreeningServices laboratoryScreeningServices,

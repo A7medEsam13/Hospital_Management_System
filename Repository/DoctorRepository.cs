@@ -1,4 +1,6 @@
-﻿namespace Hospital_Management_System.Repository
+﻿using System.Threading.Tasks;
+
+namespace Hospital_Management_System.Repository
 {
     public class DoctorRepository : IDoctorRepository
     {
@@ -14,22 +16,9 @@
         }
 
 
-        public async Task<IEnumerable<DoctorDisplayDto>> GetAll()
+        public async Task<IEnumerable<Doctor>> GetAll()
         {
             var doctors = await _context.Doctors
-                .Select(d=> new DoctorDisplayDto
-                {
-                    SSN = d.SSN,
-                    FirstName = d.FirstName,
-                    LastName = d.LastName,
-                    JoinDate = d.JoinDate,
-                    Email = d.Email,
-                    Address = d.Address,
-                    DepartmentName = d.DepartmentName,
-                    Salary = d.Salary,
-                    Qualification = d.Qualification,
-                    Specialization = d.Specialization
-                })
                 .ToListAsync();
             return doctors;
         }
@@ -42,15 +31,22 @@
             
         }
 
-        public async Task SaveAsync()
-        {
-            await _context.SaveChangesAsync();
-        }
+       
 
-        public void Update(DoctorUpdateDto doctor)
+
+        public async Task Update(Doctor doctor)
         {
-            var existingDoctor = _context.Doctors.FirstOrDefault(x => x.SSN == doctor.SSN);
-            _context.Doctors.Update(existingDoctor);
+            await _context.Doctors
+                .Where(d => d.SSN == doctor.SSN)
+                .ExecuteUpdateAsync(d => d
+                .SetProperty(o => o.Qualification, n => doctor.Qualification)
+                .SetProperty(o => o.Specialization, n => doctor.Specialization));
+
+            await _context.Staffs
+                .Where(d => d.SSN == doctor.SSN)
+                .ExecuteUpdateAsync(s => s.
+                SetProperty(o => o.Address, n => doctor.Address)
+                .SetProperty(o => o.DepartmentName, n => doctor.DepartmentName));
         }
     }
 }

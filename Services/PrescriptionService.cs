@@ -100,7 +100,7 @@ namespace Hospital_Management_System.Services
             {
                 PatientId = patientID,
                 DoctorSSN = p.DoctorId,
-                Medicines = GetPrescriptionMedicines(patientID)
+                Medicines = GetPrescriptionMedicines(p.Id)
             });
         }
 
@@ -116,21 +116,25 @@ namespace Hospital_Management_System.Services
             await _unitOfWork.PrescriptionMedicines.Delete(prescriptionID, medicineID);
         }
 
-        public async Task UpdatePrescription(PrescriptionDisplayDto dto)
+        public async Task UpdatePrescription(int prescriptionID, int medicineID, string? newDosage, string? newDuration)
         {
-            _logger.LogInformation("Updating all medicines ");
-            foreach(var medicine in dto.Medicines)
-            {
-                var prescriptionMedicine = new PrescriptionMedicine()
-                {
-                    PrescriptionId = medicine.PrescriptionId,
-                    MedicineId = medicine.MedicineId,
-                    Dosage = medicine.Dosage,
-                    Duration = medicine.Duration
-                };
+            _logger.LogInformation("Updating the medicine with ID {id}", medicineID);
+            var prescriptionMedicine = await _unitOfWork.PrescriptionMedicines.GetPrescriptionMedicine(prescriptionID, medicineID);
 
-                await _unitOfWork.PrescriptionMedicines.UpdatePrescriptionMedicine(prescriptionMedicine);
+            if(prescriptionMedicine is null)
+            {
+                _logger.LogWarning("the medicine with id {id} is not exist in the prescription {pid}", medicineID, prescriptionID);
+                throw new KeyNotFoundException("this medicine not found in the prescription");
             }
+            if (newDosage is not null)
+                prescriptionMedicine.Dosage = newDosage;
+
+            if (newDuration is not null)
+                prescriptionMedicine.Duration = newDuration;
+
+
+            await _unitOfWork.PrescriptionMedicines.UpdatePrescriptionMedicine(prescriptionMedicine);
+            
         }
 
 

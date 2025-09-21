@@ -39,6 +39,15 @@ namespace Hospital_Management_System.Repository
                 .ToList();
         }
 
+        public async Task<List<LaboratoryScreeningPrescription>> GetAllPrescriptionScreenings(int prescriptionID)
+        {
+            var screenings = await _context.Set<LaboratoryScreeningPrescription>()
+                .Where(s => s.PrescriptionId == prescriptionID)
+                .Include(s=>s.LaboratoryScreening)
+                .ToListAsync();
+            return screenings;
+        }
+
         public async Task<List<Prescription>> GetUnPaidPrescriptions(int patientID)
         {
             return await _context.Prescriptions

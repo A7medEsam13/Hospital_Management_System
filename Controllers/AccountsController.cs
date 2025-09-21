@@ -43,7 +43,8 @@ namespace Hospital_Management_System.Controllers
                 ApplicationUser user = new()
                 {
                     Email = dto.Email,
-                    UserName = dto.UserName
+                    UserName = dto.UserName,
+                    StuffSSN = dto.StuffSSN
                 };
 
                 IdentityResult result = await _userManager.CreateAsync(user, dto.Password);

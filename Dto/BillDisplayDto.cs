@@ -7,7 +7,6 @@
         public DateOnly Date { get; set; }
         public decimal RoomCost { get; set; }
         public decimal TestsCost { get; set; }
-        public decimal OtherCharges { get; set; }
         public decimal MedicineCost { get; set; }
         public decimal Total { get; set; }
     }

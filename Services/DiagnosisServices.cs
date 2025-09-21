@@ -1,6 +1,8 @@
 ﻿
+using Hospital_Management_System.Extensions;
 using Hospital_Management_System.Repository;
 using Hospital_Management_System.UnitOfWork;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace Hospital_Management_System.Services
@@ -11,27 +13,36 @@ namespace Hospital_Management_System.Services
         private readonly ILogger<DiagnosisServices> _logger;
         private readonly IMapper _mapper;
         private readonly IPatientServices _patientServices;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public DiagnosisServices(ILogger<DiagnosisServices> logger,
             IMapper mapper,
             IUnitOfWork unitOfWork,
-            IPatientServices patientServices)
+            IPatientServices patientServices,
+            IHttpContextAccessor httpContextAccessor)
         {
             _logger = logger;
             _mapper = mapper;
             _unitOfWork = unitOfWork;
             _patientServices = patientServices;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task AddAsync(DiagnosisCreationDto diagnosisDto)
         {
             _logger.LogInformation("Mapping the diagnosis dto");
             var diagnosis = _mapper.Map<Diagnosis>(diagnosisDto);
+
+            var doctorData = await GetData.GetCurrentUserDataAsync(_httpContextAccessor, _unitOfWork);
+
+            diagnosis.DoctorSSN = doctorData.SSN;
+
             _logger.LogInformation("Adding the diagnosis to the repository");
             await _unitOfWork.Diagnoses.AddAsync(diagnosis);
             await _unitOfWork.Complete();
+
             var diagnosisFromDB =  _unitOfWork.Diagnoses.GetAll()
-                .FirstOrDefault(d => d.Name == diagnosisDto.Name && d.DoctorSSN == diagnosisDto.DoctorSSN);
+                .FirstOrDefault(d => d.Name == diagnosisDto.Name && d.DoctorSSN == doctorData.SSN);
             var diagnosisPatient = new DiagnosisPatient
             {
                 DiagnosisId = diagnosisFromDB.Id,
@@ -79,32 +90,32 @@ namespace Hospital_Management_System.Services
                 }));
         }
 
-        public IEnumerable<DiagnosisDisplayDto> GetAllDoctorDiagnosis(string doctorSSN)
+        public  IEnumerable<Task<DiagnosisDisplayDto>> GetAllDoctorDiagnosis(string doctorSSN)
         {
             _logger.LogInformation("Retrieving all diagnoses for doctor with SSN {DoctorSSN}", doctorSSN);
             var diagnoses = _unitOfWork.Diagnoses.GetAllDoctorDiagnosis(doctorSSN);
             if (diagnoses == null || !diagnoses.Any())
             {
                 _logger.LogWarning("No diagnoses found for doctor with SSN {DoctorSSN}", doctorSSN);
-                return Enumerable.Empty<DiagnosisDisplayDto>();
+                return Enumerable.Empty<Task<DiagnosisDisplayDto>>();
             }
             _logger.LogInformation("Mapping diagnoses to display DTOs for doctor");
+            
             var diagnosisDtos = diagnoses
-                .Select(d => new DiagnosisDisplayDto
+                .Select(async d => new DiagnosisDisplayDto
                 {
                     Id = d.Id,
                     Name = d.Name,
                     Details = d.Details,
                     DoctorSSN = d.DoctorSSN,
                     DoctorName = d.Doctor.FirstName + " " + d.Doctor.LastName,
-                    patientId = d.DiagnosisPatient.FirstOrDefault(pd => pd.DiagnosisId == d.Id).PatientId,
-                    PatientName = d.DiagnosisPatient.FirstOrDefault(pd => pd.DiagnosisId == d.Id).Patient.FirstName
-                    + " " + d.DiagnosisPatient.FirstOrDefault(pd => pd.DiagnosisId == d.Id).Patient.LastName
+                    patientId = await _unitOfWork.DiagnosisPatient.GetPatientID(d.Id),
+                    PatientName = await _patientServices.GetPatientFullName(await _unitOfWork.DiagnosisPatient.GetPatientID(d.Id))
                 });
             return diagnosisDtos;
         }
 
-        public IEnumerable<DiagnosisDisplayDto> GetAllPatientDiagnosis(int patientId)
+        public async Task<IEnumerable<DiagnosisDisplayDto>> GetAllPatientDiagnosis(int patientId)
         {
             if (patientId <= 0)
             {
@@ -118,6 +129,8 @@ namespace Hospital_Management_System.Services
                 _logger.LogWarning("No diagnoses found for patient with ID {PatientId}", patientId);
                 return Enumerable.Empty<DiagnosisDisplayDto>();
             }
+            var patient = await _unitOfWork.Patients.GetPatientById(patientId);
+
             return diagnoses
                 .Select(d => new DiagnosisDisplayDto
                 {
@@ -127,8 +140,7 @@ namespace Hospital_Management_System.Services
                     DoctorSSN = d.DoctorSSN,
                     DoctorName = d.Doctor.FirstName + " " + d.Doctor.LastName,
                     patientId = patientId,
-                    PatientName = d.DiagnosisPatient.FirstOrDefault(pd => pd.PatientId == patientId).Patient.FirstName
-                    + " " + d.DiagnosisPatient.FirstOrDefault(pd => pd.PatientId == patientId).Patient.LastName
+                    PatientName = patient.FirstName + ' ' + patient.LastName
                 });
         }
 
@@ -147,16 +159,18 @@ namespace Hospital_Management_System.Services
                 _logger.LogError("Diagnosis with ID {Id} not found", id);
                 throw new KeyNotFoundException($"Diagnosis with ID {id} not found.");
             }
+            var doctor = diagnosis.Doctor;
+            var patientID = _unitOfWork.DiagnosisPatient.GetByDiagnosisId(diagnosis.Id).PatientId;
+            var patient = await _unitOfWork.Patients.GetPatientById(patientID);
             return new DiagnosisDisplayDto
             {
                 Id = diagnosis.Id,
                 Name = diagnosis.Name,
                 Details = diagnosis.Details,
                 DoctorSSN = diagnosis.DoctorSSN,
-                DoctorName = diagnosis.Doctor.FirstName + " " + diagnosis.Doctor.LastName,
-                patientId = diagnosis.DiagnosisPatient.FirstOrDefault(pd => pd.DiagnosisId == diagnosis.Id)?.PatientId ?? 0,
-                PatientName = diagnosis.DiagnosisPatient.FirstOrDefault(pd => pd.DiagnosisId == diagnosis.Id)?.Patient.FirstName
-                    + " " + diagnosis.DiagnosisPatient.FirstOrDefault(pd => pd.DiagnosisId == diagnosis.Id)?.Patient.LastName
+                DoctorName = doctor.FirstName + ' ' + doctor.LastName,
+                patientId = patientID,
+                PatientName = patient.FirstName + ' ' + patient.LastName
             };
         }
 
@@ -177,5 +191,6 @@ namespace Hospital_Management_System.Services
             await _unitOfWork.Complete();
             _logger.LogInformation("Diagnosis with id {Id} updated successfully", id);
         }
+
     }
 }

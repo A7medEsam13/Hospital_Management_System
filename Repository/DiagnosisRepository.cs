@@ -56,7 +56,7 @@ namespace Hospital_Management_System.Repository
         public async Task<Diagnosis> GetByIdAsync(int id)
         {
             return await _context.Diagnoses
-                .AsNoTracking()
+                .Include(d => d.Doctor)
                 .FirstOrDefaultAsync(d => d.Id == id);
                
         }

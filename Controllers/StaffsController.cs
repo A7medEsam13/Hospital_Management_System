@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Hospital_Management_System.Controllers
 {
-    //[Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
     [Route("api/[controller]")]
     [ApiController]
     public class StaffsController : ControllerBase
@@ -41,9 +41,8 @@ namespace Hospital_Management_System.Controllers
                 _logger.LogError($"Staff with SSN {id} not found.");
                 return NotFound($"Staff with SSN {id} not found.");
             }
-            var staffDto = _mapper.Map<StuffDisplayDto>(staff);
             _logger.LogInformation($"Retrieved staff member with SSN {id} successfully.");
-            return Ok(staffDto);
+            return Ok(staff);
         }
 
         [HttpPost]
@@ -59,20 +58,27 @@ namespace Hospital_Management_System.Controllers
             return Created();
         }
 
+        [HttpPut("reassign")]
+        public async Task<IActionResult> ReturnStuffToWork(string ssn)
+        {
+            if (string.IsNullOrEmpty(ssn))
+            {
+                return BadRequest("Invalid SSN");
+            }
+
+            await _staffServices.ReturnStuffToWork(ssn);
+            return Ok("Done");
+        }
+
         [HttpPut]
-        public async Task<IActionResult> UpdateStaff([FromBody] StuffUpdateDto dto)
+        public async Task<IActionResult> UpdateStaff( StuffUpdateDto dto)
         {
             if (dto == null)
             {
                 _logger.LogError("Received null staff object for update.");
                 return BadRequest("Staff object cannot be null.");
             }
-            var existingStaff = await _staffServices.GetById(dto.SSN);
-            if (existingStaff == null)
-            {
-                _logger.LogError($"Staff with SSN {dto.SSN} not found for update.");
-                return NotFound($"Staff with SSN {dto.SSN} not found.");
-            }
+            
             await _staffServices.Update(dto);
             _logger.LogInformation($"Updated staff member with SSN {dto.SSN} successfully.");
             return Ok();

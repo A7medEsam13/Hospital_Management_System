@@ -11,7 +11,6 @@ namespace Hospital_Management_System.UnitOfWork
 
         public ILaboratoryScreeningRepository LaboratoryScreenings { get; private set; }
 
-        public IPayrollRepository Payrolls { get; private set; }
 
         public IAppointmentRepository Appointments { get; private set; }
 
@@ -47,7 +46,6 @@ namespace Hospital_Management_System.UnitOfWork
             IRoomRepository rooms,
             IStuffRepository stuffs,
             ApplicationDbContext context,
-            IPayrollRepository payrolls,
             IMedicineRepository medicines,
             ILaboratoryScreeningRepository laboratoryScreening,
             IBillRepository bills)
@@ -63,7 +61,6 @@ namespace Hospital_Management_System.UnitOfWork
             Rooms = rooms;
             Stuffs = stuffs;
             _context = context;
-            Payrolls = payrolls;
             Medicines = medicines;
             LaboratoryScreenings = laboratoryScreening;
             Bills = bills;

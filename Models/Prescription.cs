@@ -13,8 +13,8 @@ namespace Hospital_Management_System.Models
         public bool IsPaid { get; set; } = false;
 
 
-        public int BillID { get; set; }
-        public Bill Bill { get; set; }
+        public int? BillID { get; set; }
+        public Bill? Bill { get; set; }
 
 
         // Navigation properties

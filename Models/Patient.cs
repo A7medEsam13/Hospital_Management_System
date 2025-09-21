@@ -14,7 +14,8 @@
         public DateOnly AdmissionDate { get; set; }
         public DateOnly DisChargeDate { get; set; }
         [ForeignKey("Room")]
-        public int? RoomId { get; set; } 
+        public int? RoomId { get; set; }
+        public bool IsRoomPaied { get; set; } = false;
 
         // Navigation Preperties
         public ICollection<Prescription> Prescriptions { get; set; }

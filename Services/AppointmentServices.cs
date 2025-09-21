@@ -110,9 +110,9 @@ namespace Hospital_Management_System.Services
                 _logger.LogWarning($"Appointment with ID {id} not found for update.");
                 throw new KeyNotFoundException($"Appointment with ID {id} not found.");
             }
-            var updatedAppointment = _mapper.Map<Appointment>(appointment);
-            _unitOfWork.Appointments.UpdateAppointment(updatedAppointment);
-            await _unitOfWork.Complete();
+            existingAppointment.Date = appointment.Date;
+            existingAppointment.Time = appointment.Time;
+            await _unitOfWork.Appointments.UpdateAppointment(existingAppointment);
             _logger.LogInformation($"Appointment with ID {id} updated successfully.");
         }
     }

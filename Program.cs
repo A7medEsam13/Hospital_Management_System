@@ -1,4 +1,4 @@
-using LoggerService;
+
 using Hospital_Management_System.Models;
 using Hospital_Management_System.Repository;
 using Hospital_Management_System.Services;
@@ -32,7 +32,7 @@ namespace Hospital_Management_System
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Your API", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Hospital_Management_System", Version = "v1" });
 
                 // ? Add JWT Bearer authentication to Swagger
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -132,6 +132,7 @@ namespace Hospital_Management_System
                 await DataSeeder.SeedAdmin(scope.ServiceProvider);
             }
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
 

@@ -5,7 +5,7 @@
         public Task AddAppointment(Appointment appointment); //
         public Task<IEnumerable<AppointmentDisplayDto>> GetAllAppointments(); //
         public Task<Appointment> GetAppointmentById(int id); //
-        public void UpdateAppointment(Appointment appointment); //
+        public Task UpdateAppointment(Appointment appointment); //
         public void DeleteAppointment(Appointment appointment); //
         public Task<IEnumerable<AppointmentDisplayDto>> GetAppointmentsByPatientId(int patientId); //
         public Task<IEnumerable<AppointmentDisplayDto>> GetAppointmentsByDoctorId(string doctorId); //

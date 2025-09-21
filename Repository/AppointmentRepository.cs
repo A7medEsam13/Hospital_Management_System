@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace Hospital_Management_System.Repository
 {
@@ -107,9 +108,13 @@ namespace Hospital_Management_System.Repository
             await _context.SaveChangesAsync();
         }
 
-        public void UpdateAppointment(Appointment appointment)
+        public async Task UpdateAppointment(Appointment appointment)
         {
-            _context.Appointments.Update(appointment);
+            await _context.Appointments
+                .Where(a => a.Id == appointment.Id)
+                .ExecuteUpdateAsync(s => s
+                .SetProperty(o => o.Date, n => appointment.Date)
+                .SetProperty(o => o.Time, n => appointment.Time));
         }
 
        
