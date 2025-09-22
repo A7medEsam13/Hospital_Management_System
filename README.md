@@ -10,7 +10,7 @@ Admin: Full access to manage all system settings and user accounts.
 
 Doctor: Access to view patient records, manage appointments, and write prescriptions.
 
-Receptionist: Manages patient registration, schedules appointments, and handles billing.
+Receptionist: Manages patient registration, schedules appointments,adding patients to rooms and handles billing.
 
 Technician: Access to lab results and medical equipment records.
 
